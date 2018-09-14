@@ -2,6 +2,7 @@
 
 [![Gem Version](https://badge.fury.io/rb/adequate_crypto_address.svg)](https://rubygems.org/gems/adequate_crypto_address)
 [![Build Status](https://travis-ci.org/vtm9/adequate_crypto_address.svg?branch=master)](https://travis-ci.org/vtm9/adequate_crypto_address)
+[![Code Climate](https://codeclimate.com/github/vtm9/adequate_crypto_address.svg)](https://codeclimate.com/github/vtm9/adequate_crypto_address)
 
 Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/adequate_crypto_address`. To experiment with that code, run `bin/console` for an interactive prompt.
 
