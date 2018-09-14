@@ -4,6 +4,8 @@
 [![Build Status](https://travis-ci.org/vtm9/adequate_crypto_address.svg?branch=master)](https://travis-ci.org/vtm9/adequate_crypto_address)
 [![Code Climate](https://codeclimate.com/github/vtm9/adequate_crypto_address.svg)](https://codeclimate.com/github/vtm9/adequate_crypto_address)
 [![Coverage Status](https://coveralls.io/repos/vtm9/adequate_crypto_address/badge.svg?branch=master)](https://coveralls.io/r/vtm9/adequate_crypto_address?branch=master)
+[![License](https://img.shields.io/github/license/RubyMoney/money.svg)](https://opensource.org/licenses/MIT)
+
 
 
 Welcome to your new gem! In this directory, you'll find the files you need to be able to package up your Ruby library into a gem. Put your Ruby code in the file `lib/adequate_crypto_address`. To experiment with that code, run `bin/console` for an interactive prompt.
