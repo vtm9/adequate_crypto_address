@@ -1,6 +1,7 @@
 require 'coveralls'
 Coveralls.wear!
 
+$LOAD_PATH.unshift File.dirname(__FILE__)
 require 'rspec'
 require 'adequate_crypto_address'
 
