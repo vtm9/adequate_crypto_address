@@ -25,46 +25,46 @@ module AdequateCryptoAddress
             (-((b >> 4) & 1) & 0x2a1462b3)
         end
 
-        def encode(hrp, data)
-          buf = []
-          chk = 1
+        # def encode(hrp, data)
+        #   buf = []
+        #   chk = 1
 
-          hrp.unpack('C*').each do |ch|
-            return nil if ch < 33 || ch > 126
-            return nil if ch >= 'A'.ord && ch <= 'Z'.ord
+        #   hrp.unpack('C*').each do |ch|
+        #     return nil if ch < 33 || ch > 126
+        #     return nil if ch >= 'A'.ord && ch <= 'Z'.ord
 
-            chk = polymod_step(chk) ^ (ch >> 5)
-          end
+        #     chk = polymod_step(chk) ^ (ch >> 5)
+        #   end
 
-          return nil if (hrp.bytesize + 7 + data.size) > 90
+        #   return nil if (hrp.bytesize + 7 + data.size) > 90
 
-          chk = polymod_step(chk)
-          hrp.unpack('C*').each do |ch|
-            chk = polymod_step(chk) ^ (ch & 0x1f)
-            buf << ch
-          end
+        #   chk = polymod_step(chk)
+        #   hrp.unpack('C*').each do |ch|
+        #     chk = polymod_step(chk) ^ (ch & 0x1f)
+        #     buf << ch
+        #   end
 
-          buf << '1'.ord
+        #   buf << '1'.ord
 
-          data.each do |i|
-            return nil if (i >> 5) != 0
+        #   data.each do |i|
+        #     return nil if (i >> 5) != 0
 
-            chk = polymod_step(chk) ^ i
-            buf << CHARSET[i]
-          end
+        #     chk = polymod_step(chk) ^ i
+        #     buf << CHARSET[i]
+        #   end
 
-          6.times do
-            chk = polymod_step(chk)
-          end
+        #   6.times do
+        #     chk = polymod_step(chk)
+        #   end
 
-          chk ^= 1
+        #   chk ^= 1
 
-          6.times do |i|
-            buf << CHARSET[(chk >> ((5 - i) * 5)) & 0x1f]
-          end
+        #   6.times do |i|
+        #     buf << CHARSET[(chk >> ((5 - i) * 5)) & 0x1f]
+        #   end
 
-          buf.pack('C*')
-        end
+        #   buf.pack('C*')
+        # end
 
         # rubocop:disable CyclomaticComplexity,PerceivedComplexity
         def decode(input)

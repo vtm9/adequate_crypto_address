@@ -59,8 +59,8 @@ module AdequateCryptoAddress
         out
       end
 
-      def verify_checksum(prefix, payload)
-        polymod(prefix_expand(prefix) + payload) == 0
+      def verify_cash_checksum(payload)
+        polymod(expanded_prefix + payload) == 0
       rescue TypeError
         raise AdequateCryptoAddress::InvalidAddress
       end
