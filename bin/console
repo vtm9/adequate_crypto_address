@@ -1,0 +1,11 @@
+#!/usr/bin/env ruby
+
+$:.unshift( File.expand_path("../../lib", __FILE__) )
+require 'adequate_crypto_address'
+
+ACA = AdequateCryptoAddress
+include AdequateCryptoAddress
+
+require 'pry'
+Pry.start
+

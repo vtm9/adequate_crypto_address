@@ -1,19 +1,20 @@
 # frozen_string_literal: true
 
 module AdequateCryptoAddress
-  class ETH
-    attr_reader :address
+  class Eth
+    attr_reader :address, :raw_address
 
-    def initialize(address)
-      @address = prefix_hex(address)
+    def initialize(address_sring)
+      @address = normalize(address_sring)
+      @raw_address = address_sring
     end
 
-    def prefix_hex(hex)
-      /\A0x/.match?(hex) ? hex : "0x#{hex}"
+    def normalize(address_sring)
+      /\A0x/.match?(address_sring) ? address_sring : "0x#{address_sring}"
     end
 
-    def valid?
-      if !matches_any_format?
+    def valid?(_type = nil)
+      if !valid_format?
         false
       elsif not_checksummed?
         true
@@ -22,18 +23,21 @@ module AdequateCryptoAddress
       end
     end
 
+    def address_type; end
+
+    private
+
     def checksummed
-      raise "Invalid address: #{address}" unless matches_any_format?
+      raise "Invalid address: #{address}" unless valid_format?
 
       cased = unprefixed.chars.zip(checksum.chars).map do |char, check|
         /[0-7]/.match?(check) ? char.downcase : char.upcase
       end
 
-      prefix_hex(cased.join)
+      normalize(cased.join)
     end
 
     private
-
 
     def checksum_matches?
       address == checksummed
@@ -51,7 +55,7 @@ module AdequateCryptoAddress
       address.match(/(?:0[xX])[a-f0-9]{40}/)
     end
 
-    def matches_any_format?
+    def valid_format?
       address.match(/\A(?:0[xX])[a-fA-F0-9]{40}\z/)
     end
 
@@ -75,5 +79,5 @@ module AdequateCryptoAddress
       Digest::SHA3.new(256).digest(x)
     end
   end
+  Ethereum = Eth
 end
-
