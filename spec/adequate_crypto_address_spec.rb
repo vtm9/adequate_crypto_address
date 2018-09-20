@@ -82,17 +82,29 @@ RSpec.describe(AdequateCryptoAddress) do
         expect(described_class).to be_valid('0x52908400098527886E0F7030069857D2E4169EE7', 'ETH')
         expect(described_class).to be_valid('0x8617E340B3D01FA5F11F306F4090FD50E238070D', 'ETH')
         expect(described_class).to be_valid('0xde709f2102306220921060314715629080e2fb77', 'ETH')
-        expect(described_class).to be_valid('0x27b1fdb04752bbc536007a920d24acb045561c26', 'ETH')
-        expect(described_class).to be_valid('0x5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed', 'ETH')
-        expect(described_class).to be_valid('0xfB6916095ca1df60bB79Ce92cE3Ea74c37c5d359', 'ETH')
-        expect(described_class).to be_valid('0xdbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB', 'ETH')
-        expect(described_class).to be_valid('0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb', 'ETH')
+      end
+      it 'validates without prefixes addresses' do
+        expect(described_class).to be_valid('27b1fdb04752bbc536007a920d24acb045561c26', 'ETH')
+        expect(described_class).to be_valid('5aAeb6053F3E94C9b9A09f33669435E7Ef1BeAed', 'ETH')
+        expect(described_class).to be_valid('fB6916095ca1df60bB79Ce92cE3Ea74c37c5d359', 'ETH')
+        expect(described_class).to be_valid('dbF03B407c01E7cD3CBea99509d93f8DDDC8C6FB', 'ETH')
+        expect(described_class).to be_valid('D1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb', 'ETH')
       end
 
       it 'validates wrong addresses' do
         expect(described_class).not_to be_valid('0xD1110A0cf47c7B9Be7A2E6BA89F429762e7b9aDb', 'ETH')
-        expect(described_class).not_to be_valid('0xa10354276d2fC74ee91e37D085d35748613f4748', :ethereum)
+        expect(described_class).not_to be_valid('a10354276d2fC74ee91e37D085d35748613f4748', :ethereum)
       end
+    end
+  end
+
+  describe '.address' do
+    it 'returns insance' do
+      expect(described_class.address('D1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb', 'eth')).to be_kind_of(AdequateCryptoAddress::Eth)
+    end
+
+    it 'raises UnknownCurrency with unknown currency' do
+      expect { described_class.address('addr', 'asdf') }.to raise_error(AdequateCryptoAddress::UnknownCurrency, /asdf/)
     end
   end
 end

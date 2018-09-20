@@ -7,7 +7,7 @@ require 'adequate_crypto_address/bch'
 
 
 module AdequateCryptoAddress
-
+  class UnknownCurrency < StandardError; end
   module_function
 
   def valid?(address, currency, type = nil)
@@ -16,6 +16,8 @@ module AdequateCryptoAddress
 
   def address(address, currency)
     AdequateCryptoAddress.const_get(currency.capitalize).new(address)
+  rescue NameError
+    raise UnknownCurrency, "Wrong currency #{currency}"
   end
 
   def address_type(address, currency)
