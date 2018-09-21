@@ -1,13 +1,19 @@
-# AdequateCryptoAddress
+
+AdequateCryptoAddress
+===============
+
+[![Gem Version][gem-version-svg]][gem-version-link]
+[![Build Status][build-status-svg]][build-status-link]
+[![Code Climate][codeclimate-status-svg]][codeclimate-status-link]
+[![Coverage Status][coverage-status-svg]][coverage-status-link]
+[![Downloads][downloads-svg]][downloads-link]
+[![Docs][docs-rubydoc-svg]][docs-rubydoc-link]
+[![License][license-svg]][license-link]
+
 Simple wallet address validator and normalizer for cryptocurrencies addresses in Ruby.
 
 Inspired by [ognus/wallet-address-validator](https://github.com/ognus/wallet-address-validator).
 
-[![Gem Version](https://badge.fury.io/rb/adequate_crypto_address.svg)](https://rubygems.org/gems/adequate_crypto_address)
-[![Build Status](https://travis-ci.org/vtm9/adequate_crypto_address.svg?branch=master)](https://travis-ci.org/vtm9/adequate_crypto_address)
-[![Code Climate](https://codeclimate.com/github/vtm9/adequate_crypto_address.svg)](https://codeclimate.com/github/vtm9/adequate_crypto_address)
-[![Coverage Status](https://coveralls.io/repos/vtm9/adequate_crypto_address/badge.svg?branch=master)](https://coveralls.io/r/vtm9/adequate_crypto_address?branch=master)
-[![License](https://img.shields.io/github/license/RubyMoney/money.svg)](https://opensource.org/licenses/MIT)
 
 ## Installation
 
@@ -97,3 +103,19 @@ Run `rake spec` to run the tests. You can also run `bin/console` for an interact
 ## Notes
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/vtm9/adequate_crypto_address/issues
+
+ [gem-version-svg]: https://badge.fury.io/rb/adequate_crypto_address.svg
+ [gem-version-link]: https://rubygems.org/gems/adequate_crypto_address
+ [downloads-svg]: http://ruby-gem-downloads-badge.herokuapp.com/adequate_crypto_address
+ [downloads-link]: https://rubygems.org/gems/adequate_crypto_address
+ [build-status-svg]: https://travis-ci.org/vtm9/adequate_crypto_address.svg?branch=master
+ [build-status-link]:https://travis-ci.org/vtm9/adequate_crypto_address
+ [coverage-status-svg]: https://coveralls.io/repos/vtm9/adequate_crypto_address/badge.svg?branch=master
+ [coverage-status-link]: https://coveralls.io/r/vtm9/adequate_crypto_address?branch=master
+ [codeclimate-status-svg]: https://codeclimate.com/github/vtm9/adequate_crypto_address.svg
+ [codeclimate-status-link]: https://codeclimate.com/github/vtm9/adequate_crypto_address
+ [docs-rubydoc-svg]: https://img.shields.io/badge/docs-rubydoc-blue.svg
+ [docs-rubydoc-link]: http://www.rubydoc.info/gems/adequate_crypto_address/
+ [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
+ [license-link]: https://github.com/vtm9/adequate_crypto_address/blob/master/LICENSE.txt
+
