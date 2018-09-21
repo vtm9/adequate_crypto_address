@@ -1,10 +1,13 @@
 require 'adequate_crypto_address/utils/bech32'
 require 'adequate_crypto_address/utils/bch'
 
+require 'adequate_crypto_address/altcoin'
+require 'adequate_crypto_address/bch'
 require 'adequate_crypto_address/eth'
 require 'adequate_crypto_address/btc'
-require 'adequate_crypto_address/bch'
-
+require 'adequate_crypto_address/xrp'
+require 'adequate_crypto_address/dash'
+require 'adequate_crypto_address/zec'
 
 module AdequateCryptoAddress
   class UnknownCurrency < StandardError; end

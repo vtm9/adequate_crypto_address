@@ -1,13 +1,13 @@
 # AdequateCryptoAddress
+Simple wallet address validator and normalizer for cryptocurrencies addresses in Ruby.
+
+Inspired by [ognus/wallet-address-validator](https://github.com/ognus/wallet-address-validator).
 
 [![Gem Version](https://badge.fury.io/rb/adequate_crypto_address.svg)](https://rubygems.org/gems/adequate_crypto_address)
 [![Build Status](https://travis-ci.org/vtm9/adequate_crypto_address.svg?branch=master)](https://travis-ci.org/vtm9/adequate_crypto_address)
 [![Code Climate](https://codeclimate.com/github/vtm9/adequate_crypto_address.svg)](https://codeclimate.com/github/vtm9/adequate_crypto_address)
 [![Coverage Status](https://coveralls.io/repos/vtm9/adequate_crypto_address/badge.svg?branch=master)](https://coveralls.io/r/vtm9/adequate_crypto_address?branch=master)
 [![License](https://img.shields.io/github/license/RubyMoney/money.svg)](https://opensource.org/licenses/MIT)
-
-
-
 
 ## Installation
 
@@ -17,13 +17,31 @@ Add this line to your application's Gemfile:
 gem 'adequate_crypto_address'
 ```
 
-And then execute:
-
-    $ bundle
-
 Or install it yourself as:
 
-    $ gem install adequate_crypto_address
+```bash
+gem install adequate_crypto_address
+```
+
+## Main API
+
+##### .valid? (address [, currency = 'BTC'[, type = :prod]])
+
+###### Parameters
+* address - Wallet address to validate.
+* currency - Currency name string or symbol in any case, `:bitcoin` or `'BTC'` or `:btc` or `'BitCoin'`
+* type - Optional. You can enforce validation with specific type. Not all currencies support types.
+
+> Returns true if the address (string) is a valid wallet address for the crypto currency specified, see below for supported currencies.
+
+### Supported crypto currencies
+
+* Bitcoin/BTC, `'bitcoin'` or `'BTC'` types: `:segwit_v0_keyhash :segwit_v0_scripthash :hash160 :p2sh`
+* BitcoinCash/BCH, `'bitcoincash'` or `'BCH'` types: `:p2sh :p2pkh :p2pkhtest :p2shtest`
+* Dash, `'dash'` or `'DASH'` types: `:prod :test`
+* Zcash/ZEC, `'zcash'` or `'ZEC'` types: `:prod :test`
+* Ethereum/ETH, `'ethereum'` or `'ETH'`
+* Ripple/XRP, `'ripple'` or `'XRP'`
 
 ## Usage
 
@@ -36,8 +54,7 @@ AdequateCryptoAddress.valid?('3NJZLcZEEYBpxYEUGewU4knsQRn1WM5Fkt', :bitcoin, :p2
 
 # BCH
 AdequateCryptoAddress.valid?('bitcoincash:qrtj3rd8524cndt2eew3s6wljqggmne00sgh4kfypk', :bch) #=> true
-AdequateCryptoAddress.valid?('mmRH4e9WW4ekZUP5HvBScfUyaSUjfQRyvD', :BCH, :P2PKHTestnet) #=> true
-AdequateCryptoAddress.valid?('qrtj3rd8524cndt2eew3s6wljqggmne00sgh4kfypk', :BCH, :bitcoincash) #=> true
+AdequateCryptoAddress.valid?('mmRH4e9WW4ekZUP5HvBScfUyaSUjfQRyvD', :BCH, :p2pkhtest) #=> true
 
 # ETH
 AdequateCryptoAddress.valid?('0xde709f2102306220921060314715629080e2fb77', :ETH) #=> true
@@ -49,13 +66,19 @@ AdequateCryptoAddress.valid?('de709f2102306220921060314715629080e2fb77', :ethere
 require 'adequate_crypto_address'
 
 # BCH
-AdequateCryptoAddress.address('qrtj3rd8524cndt2eew3s6wljqggmne00sgh4kfypk', 'bch').address #=> "bitcoincash:qrtj3rd8524cndt2eew3s6wljqggmne00sgh4kfypk"
 AdequateCryptoAddress.address('mmRH4e9WW4ekZUP5HvBScfUyaSUjfQRyvD', 'bch').cash_address #=> "bchtest:qpqtmmfpw79thzq5z7s0spcd87uhn6d34uqqem83hf"
 AdequateCryptoAddress.address('bitcoincash:qrtj3rd8524cndt2eew3s6wljqggmne00sgh4kfypk', 'bch').legacy_address #=> "1LcerwTc1oPsMtByDCNUXFxReZpN1EXHoe"
+
+address_string = 'qrtj3rd8524cndt2eew3s6wljqggmne00sgh4kfypk'
+addr = AdequateCryptoAddress.address(address_string, 'bch')
+addr.prefix #=> "bitcoincash"
+addr.type #=> :p2pkh
+addr.address #=> "bitcoincash:qrtj3rd8524cndt2eew3s6wljqggmne00sgh4kfypk"
 
 # ETH
 AdequateCryptoAddress.address('D1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb', 'eth').address #=> "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb"
 ```
+*Not all currencies support this feature.
 
 ## Development
 

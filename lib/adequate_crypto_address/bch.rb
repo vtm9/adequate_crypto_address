@@ -12,16 +12,16 @@ module AdequateCryptoAddress
 
     TYPE_MAP = {
       legacy: [
-        [:P2SH, 5],
-        [:P2PKH, 0],
-        [:P2SHTestnet, 196],
-        [:P2PKHTestnet, 111]
+        [:p2sh, 5],
+        [:p2pkh, 0],
+        [:p2shtest, 196],
+        [:p2pkhtest, 111]
       ],
       cash: [
-        [:P2SH, 8],
-        [:P2PKH, 0],
-        [:P2SHTestnet, 8],
-        [:P2PKHTestnet, 0]
+        [:p2sh, 8],
+        [:p2pkh, 0],
+        [:p2shtest, 8],
+        [:p2pkhtest, 0]
       ]
     }.freeze
     DEFAULT_PREFIX = :bitcoincash
@@ -35,8 +35,6 @@ module AdequateCryptoAddress
 
     def valid?(validated_type = nil)
       if validated_type
-        puts type
-        puts validated_type
         type == validated_type.to_sym
       else
         !type.nil?
@@ -97,8 +95,8 @@ module AdequateCryptoAddress
       @type = address_type(:cash, converted[0].to_i)[0]
       @payload = converted[1..-7]
 
-      @type = :P2SHTestnet if prefix == 'bchtest' && type == :P2SH
-      @type = :P2PKHTestnet if prefix == 'bchtest' && type == :P2PKH
+      @type = :p2shtest if prefix == 'bchtest' && type == :p2sh
+      @type = :p2pkhtest if prefix == 'bchtest' && type == :p2pkh
     end
 
     def from_legacy_string
@@ -114,9 +112,9 @@ module AdequateCryptoAddress
       @digest = decoded[-4..-1]
       @prefix = DEFAULT_PREFIX
 
-      @type = :P2SHTestnet if prefix == 'bchtest' && type == :P2SH
-      @type = :P2PKHTestnet if prefix == 'bchtest' && type == :P2PKH
-      @prefix = 'bchtest' if [:P2SHTestnet, :P2PKHTestnet].include?(type)
+      @type = :p2shtest if prefix == 'bchtest' && type == :p2sh
+      @type = :p2pkhtest if prefix == 'bchtest' && type == :p2pkh
+      @prefix = 'bchtest' if [:p2shtest, :p2pkhtest].include?(type)
     end
   end
 

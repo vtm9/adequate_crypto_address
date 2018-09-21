@@ -2,11 +2,12 @@
 
 module AdequateCryptoAddress
   class Btc
-    attr_reader :address
+    attr_reader :address, :type
     alias raw_address address
 
     def initialize(address)
       @address = address
+      @type = address_type
     end
 
     def valid?(type = nil)
@@ -16,6 +17,8 @@ module AdequateCryptoAddress
         !address_type.nil?
       end
     end
+
+    private
 
     def address_type
       segwit_decoded = begin
@@ -32,13 +35,13 @@ module AdequateCryptoAddress
         return :segwit_v0_scripthash if witness_version == 0 && witness_program.bytesize == 32
       end
 
-      hex = begin
+      base58_decoded = begin
               decode_base58(address)
             rescue StandardError
               nil
             end
-      if hex && hex.bytesize == 50 && address_checksum?
-        case hex[0...2]
+      if base58_decoded && base58_decoded.bytesize == 50 && valid_base58_address_checksum?(base58_decoded)
+        case base58_decoded[0...2]
         when '00'
           return :hash160
         when '05'
@@ -48,8 +51,6 @@ module AdequateCryptoAddress
 
       nil
     end
-
-    private
 
     def decode_segwit_address
       actual_hrp, data = Utils::Bech32.decode(address)
@@ -72,29 +73,18 @@ module AdequateCryptoAddress
       [data[0], program_hex]
     end
 
-    def decode_base58(base58_val)
-      s = Base58.base58_to_int(address, :bitcoin).to_s(16); s = (s.bytesize.odd? ? '0' + s : s)
-      s = '' if s == '00'
-      leading_zero_bytes = (base58_val =~ /^([1]+)/ ? Regexp.last_match(1) : '').size
-      s = ('00' * leading_zero_bytes) + s if leading_zero_bytes > 0
-      s
+    def decode_base58(_base58_val)
+      Base58.base58_to_binary(address, :bitcoin).each_byte.map { |b| b.to_s(16).rjust(2, '0') }.join
     end
 
-    def address_checksum?
-      hex = begin
-              decode_base58(address)
-            rescue StandardError
-              nil
-            end
-      return false unless hex
+    def valid_base58_address_checksum?(base58_decoded)
+      return false unless base58_decoded
 
-      checksum(hex[0...42]) == hex[-8..-1]
+      checksum(base58_decoded[0...-8]) == base58_decoded[-8..-1]
     end
 
-    # checksum is a 4 bytes sha256-sha256 hexdigest.
     def checksum(hex)
-      b = [hex].pack('H*') # unpack hex
-      Digest::SHA256.hexdigest(Digest::SHA256.digest(b))[0...8]
+      Digest::SHA256.hexdigest(Digest::SHA256.digest([hex].pack('H*')))[0...8]
     end
   end
   Bitcoin = Btc
