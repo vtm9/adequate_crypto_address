@@ -93,6 +93,7 @@ RSpec.describe(AdequateCryptoAddress) do
       end
 
       it 'validates wrong addresses' do
+        expect(described_class).not_to be_valid('wrong', :ETH)
         expect(described_class).not_to be_valid('0xD1110A0cf47c7B9Be7A2E6BA89F429762e7b9aDb', 'ETH')
         expect(described_class).not_to be_valid('a10354276d2fC74ee91e37D085d35748613f4748', :ethereum)
       end
@@ -109,6 +110,7 @@ RSpec.describe(AdequateCryptoAddress) do
       end
 
       it 'validates wrong addresses' do
+        expect(described_class).not_to be_valid('wrong', :xrp)
         expect(described_class).not_to be_valid('r3kmLJN5D28dHuH8vZNUZpMC43pEHpaoc1', :xrp)
         expect(described_class).not_to be_valid('r1kmLJN5D28dHuH8vZNUZpMC43pEHpaocV', 'ripple')
       end
@@ -123,6 +125,7 @@ RSpec.describe(AdequateCryptoAddress) do
       end
 
       it 'validates wrong addresses' do
+        expect(described_class).not_to be_valid('wrong', :dash)
         expect(described_class).not_to be_valid('yPv7h2i8v3dJ1fSH4L3x91JSJszjdbsJJA', :dash)
         expect(described_class).not_to be_valid('XqMkVUZnqe3w4xvgdZRtZoe7gMitDudGs4', 'dash', :test)
         expect(described_class).not_to be_valid('yPv7h2i8v3dJjfSH4L3x91JSJszjdbsJJA', :DASH, :prod)
@@ -137,6 +140,7 @@ RSpec.describe(AdequateCryptoAddress) do
       end
 
       it 'validates wrong addresses' do
+        expect(described_class).not_to be_valid('wrong', :zec)
         expect(described_class).not_to be_valid('t1Y9yhDa5XEjgfnTgZoKddeSiEN1aoLkQxq', :zcash)
         expect(described_class).not_to be_valid('t3Yz22vK5z2LcKEdg16Yv4FFneEL1zg9ojd', :ZEC)
         expect(described_class).not_to be_valid('t2YNzUUx8mWBCRYPRezvA363EYXyEpHokyi', :zcash, :test)
