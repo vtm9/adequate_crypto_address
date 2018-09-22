@@ -31,7 +31,7 @@ gem install adequate_crypto_address
 
 ## Main API
 
-##### .valid? (address [, currency = 'BTC'[, type = :prod]])
+##### .valid? (address, currency [, type = :prod])
 
 ###### Parameters
 * address - Wallet address to validate.
