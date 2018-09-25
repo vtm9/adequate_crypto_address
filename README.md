@@ -68,6 +68,7 @@ AdequateCryptoAddress.valid?('de709f2102306220921060314715629080e2fb77', :ethere
 ```
 
 ### Normalization
+###### *Not all currencies support this feature.
 ``` ruby
 require 'adequate_crypto_address'
 
@@ -84,7 +85,49 @@ addr.address #=> "bitcoincash:qrtj3rd8524cndt2eew3s6wljqggmne00sgh4kfypk"
 # ETH
 AdequateCryptoAddress.address('D1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb', 'eth').address #=> "0xD1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb"
 ```
-*Not all currencies support this feature.
+
+
+### ActiveRecord validation example
+``` ruby
+class Model < ActiveRecord::Base
+  attribute :address, :string
+  attribute :dest_tag, :string
+  attribute :currency, :string
+
+  validate  :validate_address_type
+  validate  :validate_destination_tag
+
+  def validate_address_type
+    errors.add(:address, 'invalid address') unless AdequateCryptoAddress.valid?(address, currency)
+  end
+
+  # for Ripple
+  def validate_destination_tag
+    errors.add(:dest_tag, 'invalid destination tag') if dest_tag.present? && !(dest_tag =~ /\A\d{1,10}\z/)
+  end
+end
+
+```
+### Add your currnecy
+``` ruby
+# frozen_string_literal: true
+# for Rails /config/initializers/adequate_crypto_address.rb
+module AdequateCryptoAddress
+  class Coin
+    attr_reader :address
+
+    def initialize(address_sring)
+      @address = address_sring
+    end
+
+    def valid?(_type)
+      address.present?
+    end
+  end
+end
+
+AdequateCryptoAddress.valid?('addr', :coin) #=> true
+```
 
 ## Development
 
