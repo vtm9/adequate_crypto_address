@@ -8,6 +8,7 @@ require 'adequate_crypto_address/btc'
 require 'adequate_crypto_address/xrp'
 require 'adequate_crypto_address/dash'
 require 'adequate_crypto_address/zec'
+require 'adequate_crypto_address/ltc'
 
 module AdequateCryptoAddress
   class UnknownCurrency < StandardError; end
