@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 module AdequateCryptoAddress
   # Ruby reference implementation: https://github.com/sipa/bech32/tree/master/ref/c
   module Utils

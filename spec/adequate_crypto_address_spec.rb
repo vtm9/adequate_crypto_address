@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe(AdequateCryptoAddress) do
   describe '.valid?' do
     context 'Bitcoin' do
@@ -7,11 +9,19 @@ RSpec.describe(AdequateCryptoAddress) do
         expect(described_class).to be_valid('12QeMLzSrB8XH8FvEzPMVoRxVAzTr5XM2y', 'Bitcoin')
         expect(described_class).to be_valid('12QeMLzSrB8XH8FvEzPMVoRxVAzTr5XM2y', 'btc')
         expect(described_class).to be_valid('12QeMLzSrB8XH8FvEzPMVoRxVAzTr5XM2y', 'btc', :hash160)
+
+        # testnet
+        expect(described_class).to be_valid('mzBc4XEFSdzCDcTxAgf6EZXgsZWpztRhef', 'bitcoin', 'hash160test')
+        expect(described_class).to be_valid('mv4rnyY3Su5gjcDNzbMLKBQkBicCtHUtFB', :btc)
       end
 
       it 'validates p2sh addresses' do
         expect(described_class).to be_valid('3NJZLcZEEYBpxYEUGewU4knsQRn1WM5Fkt', 'BTC')
         expect(described_class).to be_valid('3NJZLcZEEYBpxYEUGewU4knsQRn1WM5Fkt', 'bitcoin', 'p2sh')
+
+        # testnet
+        expect(described_class).to be_valid('2MxKEf2su6FGAUfCEAHreGFQvEYrfYNHvL7', 'btc')
+        expect(described_class).to be_valid('2MxKEf2su6FGAUfCEAHreGFQvEYrfYNHvL7', 'bitcoin', 'p2shtest')
       end
 
       it 'validates segwit addresses' do

@@ -30,8 +30,8 @@ module AdequateCryptoAddress
     def address_type
       @decoded = begin
               decode_base58
-            rescue StandardError
-              nil
+                 rescue StandardError
+                   nil
             end
       if decoded && decoded.bytesize == self.class::EXPECTED_LENGTH && valid_address_checksum?
         self.class::ADDRESS_TYPES.each do |net_type, net_prefixes|

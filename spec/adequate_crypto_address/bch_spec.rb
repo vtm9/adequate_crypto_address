@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 RSpec.describe(AdequateCryptoAddress::Bch) do
   let(:legacy_p2sh) { '3CWFddi6m4ndiGyKqzYvsFYagqDLPVMTzC' }
   let(:legacy_p2pkh) { '155fzsEBHy9Ri2bMQ8uuuR3tv1YzcDywd4' }

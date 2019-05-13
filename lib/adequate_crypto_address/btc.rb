@@ -37,8 +37,8 @@ module AdequateCryptoAddress
 
       base58_decoded = begin
               decode_base58(address)
-            rescue StandardError
-              nil
+                       rescue StandardError
+                         nil
             end
       if base58_decoded && base58_decoded.bytesize == 50 && valid_base58_address_checksum?(base58_decoded)
         case base58_decoded[0...2]
@@ -46,6 +46,10 @@ module AdequateCryptoAddress
           return :hash160
         when '05'
           return :p2sh
+        when '6f'
+          return :hash160test
+        when 'c4'
+          return :p2shtest
         end
       end
 

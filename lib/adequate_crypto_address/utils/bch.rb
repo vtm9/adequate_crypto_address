@@ -1,7 +1,9 @@
+# frozen_string_literal: true
+
 module AdequateCryptoAddress
   module Utils
     module Bch
-      CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'.freeze
+      CHARSET = 'qpzry9x8gf2tvdw0s3jn54khce6mua7l'
 
       module_function
 

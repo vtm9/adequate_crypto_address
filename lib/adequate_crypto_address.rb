@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 require 'adequate_crypto_address/utils/bech32'
 require 'adequate_crypto_address/utils/bch'
 
