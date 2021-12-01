@@ -76,7 +76,7 @@ module AdequateCryptoAddress
     end
 
     def keccak256(x)
-      Digest::SHA3.new(256).digest(x)
+      Digest::Keccak.new(256).digest(x)
     end
   end
   Ethereum = Eth
