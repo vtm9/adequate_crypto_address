@@ -178,6 +178,13 @@ RSpec.describe(AdequateCryptoAddress) do
         expect(described_class).not_to be_valid('t2YNzUUx8mWBCRYPRezvA363EYXyEpHokyi', :zcash, :test)
       end
     end
+
+    context 'Monero' do
+      it 'validates addresses' do
+        expect(described_class).to be_valid('4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57', :monero)
+        expect(described_class).to be_valid('4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi', :monero)
+      end
+    end
   end
 
   describe '.address' do
