@@ -48,6 +48,7 @@ gem install adequate_crypto_address
 * Zcash/ZEC, `'zcash'` or `'ZEC'` types: `:prod :test`
 * Ethereum/ETH, `'ethereum'` or `'ETH'`
 * Ripple/XRP, `'ripple'` or `'XRP'`
+* Monero/XRM, `'monero'`
 
 ## Usage
 
