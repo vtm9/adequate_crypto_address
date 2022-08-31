@@ -178,6 +178,16 @@ RSpec.describe(AdequateCryptoAddress) do
         expect(described_class).not_to be_valid('t2YNzUUx8mWBCRYPRezvA363EYXyEpHokyi', :zcash, :test)
       end
     end
+
+    context 'Toncoin' do
+      it 'validates addresses' do
+        expect(described_class).to be_valid('UQCScs4HjjwnlIFKIq_juiuLLLnjJKTjQyfcADjYNvdYwn-l', :TON)
+      end
+
+      it 'validates wrong addresses' do
+        expect(described_class).not_to be_valid('wrongFKIq_juiuLLLnjJKTjQyfcAD', :TON)
+      end
+    end
   end
 
   describe '.address' do
