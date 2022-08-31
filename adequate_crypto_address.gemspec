@@ -8,7 +8,6 @@ Gem::Specification.new do |spec|
   spec.name          = 'adequate_crypto_address'
   spec.version       = AdequateCryptoAddress::VERSION
   spec.authors       = ['vtm']
-  spec.email         = ['vtmilyakov@yandex.ru']
 
   spec.summary     = 'A Ruby Library for dealing with validation cryptocurrency adresses.'
   spec.description = 'A Ruby Library for dealing with validation cryptocurrency adresses.'
