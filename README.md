@@ -49,6 +49,7 @@ gem install adequate_crypto_address
 * Ethereum/ETH, `'ethereum'` or `'ETH'`
 * Ripple/XRP, `'ripple'` or `'XRP'`
 * Toncoin, `'TON'`
+* Monero/XRM, `'monero'`
 
 ## Usage
 
