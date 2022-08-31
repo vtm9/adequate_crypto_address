@@ -11,6 +11,7 @@ require 'adequate_crypto_address/xrp'
 require 'adequate_crypto_address/dash'
 require 'adequate_crypto_address/zec'
 require 'adequate_crypto_address/ltc'
+require 'adequate_crypto_address/ton'
 require 'adequate_crypto_address/monero'
 
 module AdequateCryptoAddress

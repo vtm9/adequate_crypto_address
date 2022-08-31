@@ -179,6 +179,16 @@ RSpec.describe(AdequateCryptoAddress) do
       end
     end
 
+    context 'Toncoin' do
+      it 'validates addresses' do
+        expect(described_class).to be_valid('UQCScs4HjjwnlIFKIq_juiuLLLnjJKTjQyfcADjYNvdYwn-l', :TON)
+      end
+
+      it 'validates wrong addresses' do
+        expect(described_class).not_to be_valid('wrongFKIq_juiuLLLnjJKTjQyfcAD', :TON)
+      end
+    end
+
     context 'Monero' do
       it 'validates addresses' do
         expect(described_class).to be_valid('4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57', :monero)
