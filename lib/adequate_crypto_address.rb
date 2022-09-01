@@ -12,7 +12,7 @@ require 'adequate_crypto_address/dash'
 require 'adequate_crypto_address/zec'
 require 'adequate_crypto_address/ltc'
 require 'adequate_crypto_address/ton'
-require 'adequate_crypto_address/monero'
+require 'adequate_crypto_address/xmr'
 
 module AdequateCryptoAddress
   class UnknownCurrency < StandardError; end
