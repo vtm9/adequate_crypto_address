@@ -1,7 +1,7 @@
 # frozen_string_literal: true
 
 module AdequateCryptoAddress
-  class Monero
+  class Xmr
     attr_reader :address, :type
 
     def initialize(address)
@@ -31,4 +31,5 @@ module AdequateCryptoAddress
         address.match(/^4[1-9A-HJ-NP-Za-km-z]{105}(?:[1-9A-HJ-NP-Za-km-z]{30})?$/)
     end
   end
+  Monero = Xmr
 end

@@ -191,12 +191,21 @@ RSpec.describe(AdequateCryptoAddress) do
 
     context 'Monero' do
       it 'validates addresses' do
+        expect(described_class).to be_valid('4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57', :XMR)
         expect(described_class).to be_valid('4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57', :monero)
+        expect(described_class).to be_valid('4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57', :Xmr)
+        expect(described_class).to be_valid('4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57', :xmr)
         expect(described_class).to be_valid('4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi', :monero)
+        expect(described_class).to be_valid('4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi', :Xmr)
+        expect(described_class).to be_valid('4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi', :Xmr)
+        expect(described_class).to be_valid('4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi', :xmr)
       end
 
       it 'validates wrong addresses' do
         expect(described_class).not_to be_valid('NOT_VALID_4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjp', :monero)
+        expect(described_class).not_to be_valid('NOT_VALID_4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjp', :Xmr)
+        expect(described_class).not_to be_valid('NOT_VALID_4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjp', :XMR)
+        expect(described_class).not_to be_valid('NOT_VALID_4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjp', :xmr)
       end
     end
   end
