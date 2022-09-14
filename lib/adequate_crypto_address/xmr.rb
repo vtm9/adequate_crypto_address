@@ -27,8 +27,8 @@ module AdequateCryptoAddress
 
     def pattern_valid?
       address.size == 95 ?
-        address.match(/^4[0-9AB][1-9A-HJ-NP-Za-km-z]{93}$/) :
-        address.match(/^4[1-9A-HJ-NP-Za-km-z]{105}(?:[1-9A-HJ-NP-Za-km-z]{30})?$/)
+        address.match(/^4|8[0-9AB][1-9A-HJ-NP-Za-km-z]{93}$/) :
+        address.match(/^4|8[1-9A-HJ-NP-Za-km-z]{105}(?:[1-9A-HJ-NP-Za-km-z]{30})?$/)
     end
   end
   Monero = Xmr

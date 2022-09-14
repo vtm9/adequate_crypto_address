@@ -199,6 +199,8 @@ RSpec.describe(AdequateCryptoAddress) do
         expect(described_class).to be_valid('4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi', :Xmr)
         expect(described_class).to be_valid('4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi', :Xmr)
         expect(described_class).to be_valid('4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi', :xmr)
+        expect(described_class).to be_valid('8BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57', :xmr)
+        expect(described_class).to be_valid('8TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi', :monero)
       end
 
       it 'validates wrong addresses' do
