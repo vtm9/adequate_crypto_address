@@ -69,13 +69,14 @@ module AdequateCryptoAddress
         # end
 
         # rubocop:disable CyclomaticComplexity,PerceivedComplexity
-        def decode(input)
+        def decode(input, ignore_length: false)
           chk = 1
           input_len = input.bytesize
           have_lower = false
           have_upper = false
 
-          return nil if input_len < 8 || input_len > 90
+          return nil if input_len < 8
+          return nil if input_len > 90 && !ignore_length
 
           data_len = 0
           data_len += 1 while data_len < input_len && input[(input_len - 1) - data_len] != '1'

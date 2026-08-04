@@ -30,11 +30,17 @@ RSpec.describe(AdequateCryptoAddress) do
         expect(described_class).to be_valid('bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq', 'bitcoin', :segwit_v0_keyhash)
         expect(described_class).to be_valid('bc1qc7slrfxkknqcq2jevvvkdgvrt8080852dfjewde450xdlk4ugp7szw5tk9', 'BTC')
         expect(described_class).to be_valid('bc1qc7slrfxkknqcq2jevvvkdgvrt8080852dfjewde450xdlk4ugp7szw5tk9', 'bitcoin', :segwit_v0_scripthash)
+        # testnet3 / testnet4
+        expect(described_class).to be_valid('tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx', 'BTC')
+        expect(described_class).to be_valid('tb1qg3hss5p9g9jp0es5u5aaz3lszf6cvdggtmjarr', 'bitcoin', :segwit_v0_keyhash)
       end
 
       it 'validates taproot addresses' do
         expect(described_class).to be_valid('bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr', 'bitcoin')
         expect(described_class).to be_valid('bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr', 'BTC', :taproot)
+        # testnet3 / testnet4
+        expect(described_class).to be_valid('tb1pzt53e6nghqw40zglfzn56cdj82xx68nsd84z3yn5pl6xxj2v3n9qrsheeh', 'BTC')
+        expect(described_class).to be_valid('tb1pjfdm902y2adr08qnn4tahxjvp6x5selgmvzx63yfqk2hdey02yvqjcr29q', 'bitcoin', :taproot)
       end
 
       it 'validates wrong addresses' do
@@ -187,6 +193,79 @@ RSpec.describe(AdequateCryptoAddress) do
         expect(described_class).not_to be_valid('t2YNzUUx8mWBCRYPRezvA363EYXyEpHokyi', :zcash, :test)
         expect(described_class).not_to be_valid('tltc1pxdvk48nchp45mcg8pcht5ss8ladtxnl7mkr96lrw93q79g407ufqmelwuu', 'LTC', :prod)
         expect(described_class).not_to be_valid('tltc1Pxdvk48nchp45mcg8pcht5ss8ladtxnl7mkr96lrw93q79g407ufqmelwuu', 'LTC')
+      end
+    end
+
+    context 'Cardano' do
+      it 'validates addresses' do
+        expect(described_class).to be_valid('addr1z84q0denmyep98ph3tmzwsmw0j7zau9ljmsqx6a4rvaau66j2c79gy9l76sdg0xwhd7r0c0kna0tycz4y5s6mlenh8pq777e2a', :ada)
+        expect(described_class).to be_valid('addr1q9dhugez3ka82k2kgh7r2lg0j7aztr8uell46kydfwu3vk6n8w2cdu8mn2ha278q6q25a9rc6gmpfeekavuargcd32vsvxhl7e', 'ADA', :prod)
+        expect(described_class).to be_valid('addr1q8gg2r3vf9zggn48g7m8vx62rwf6warcs4k7ej8mdzmqmesj30jz7psduyk6n4n2qrud2xlv9fgj53n6ds3t8cs4fvzs05yzmz', 'Cardano')
+        expect(described_class).to be_valid('addr1wx6hd6gradhx8m7l2sn5w8pp2vuh22glwq65w07wjfqlf7qlh3dvr', 'Cardano')
+
+        expect(described_class).to be_valid('addr_test1qqx3d3kxe37k76wrpeck338g6zk47hjfz6t04t7n8m7t8yjkvjhxw6ysgfejsde09fmtznsnwzaphdl774qh49nu7vcsgq5wqa', 'ADA', :test)
+        expect(described_class).to be_valid('addr_test1qp4q5p7zj32vcd07ncywvuh0ca99p2w4fnv547ua5utmsuv0pten2usz500r333ck0v0amvvqdgxyrrh4t6swagsl4zsp7d6r8', 'Cardano', :test)
+        expect(described_class).to be_valid('addr_test1vr842a8uhw3pd3m4dqqgkm7p8fhy75grudpr8jht58yygzqtfcv4g', 'Cardano', :test)
+      end
+
+      it 'validates wrong addresses' do
+        expect(described_class).not_to be_valid('wrong', :ada)
+        expect(described_class).not_to be_valid('addr1z84q0denmyep98ph3tmewsmw0j7zau9ljmsqx6a4rvaau66j2c79gy9l76sdg0xwhd7r0c0kna0tycz4y5s6mlenh8pq777e2a', :ada)
+        expect(described_class).not_to be_valid('addr1q9dhugez3ka82k2kgh7r4lg0j7aztr8uell46kydfwu3vk6n8w2cdu8mn2ha278q6q25a9rc6gmpfeekavuargcd32vsvxhl7e', 'ADA', :prod)
+        expect(described_class).not_to be_valid('addr1v9jxv7k0z9m3k4f0k8h5l6h9m7q3x6w8v0j7q2x0r8z5h0k9d2', 'Cardano')
+        expect(described_class).not_to be_valid('addr_test1qp4q5p7zj32vcd07nnywvuh0ca99p2w4fnv547ua5utmsuv0pten2usz500r333ck0v0amvvqdgxyrrh4t6swagsl4zsp7d6r8', 'Cardano', :test)
+      end
+    end
+
+    context 'Dogecoin' do
+      it 'validates addresses' do
+        expect(described_class).to be_valid('DKRgRWjzZA6VPZGdTFgk1or8qiz2xZuhTM', :doge)
+        expect(described_class).to be_valid('A1hZnfuStUP9U6Uzg6CsV3n2c5As4UQ3c5', 'doge', :prod)
+        expect(described_class).to be_valid('AF3trXVo9LwoJsM1XigvMBxWGt7yYATp8t', 'DOGE')
+        expect(described_class).to be_valid('DDz1H7AcqPgmKzFEP3pBHW5b1GWuWEoAAP', 'Dogecoin')
+        expect(described_class).to be_valid('nmu9w14qnskUY8xygaDMnGkYeAAbwmEi1i', 'Dogecoin', :test)
+      end
+
+      it 'validates wrong addresses' do
+        expect(described_class).not_to be_valid('wrong', :doge)
+        expect(described_class).not_to be_valid('DKRgRZjzZA6VPZGdTFgk1or8qiz2xZuhTM', :doge)
+        expect(described_class).not_to be_valid('AF3trYVo9LwoJsM1XigvMBxWGt7yYATp8t', 'Dogecoin')
+        expect(described_class).not_to be_valid('nZBUZ085136wmU5s7Mmb4QecTdbAJbK4gZ', 'Dogecoin', :test)
+      end
+    end
+
+    context 'Solana' do
+      it 'validates addresses' do
+        expect(described_class).to be_valid('7xKXtg2CW87d97TXJSDpbD5xJQ3x6QhN5cQj7h4Fq3V', :sol)
+        expect(described_class).to be_valid('7xKXtg2CW87d97TXJSDpbD5xJQ3x6QhN5cQj7h4Fq3V', 'SOL')
+        expect(described_class).to be_valid('7xKXtg2CW87d97TXJSDpbD5xJQ3x6QhN5cQj7h4Fq3V', 'Solana')
+        expect(described_class).to be_valid('So11111111111111111111111111111111111111112', :sol)
+        expect(described_class).to be_valid('11111111111111111111111111111111', 'Solana')
+      end
+
+      it 'validates wrong addresses' do
+        expect(described_class).not_to be_valid('wrong', :sol)
+        expect(described_class).not_to be_valid('7xKXtg2CW87d97TXJSDpbD5xJQ3x6QhN5cQj7h4Fq3', :sol)
+        expect(described_class).not_to be_valid('7xKXtg2CW87d97TXJSDpbD5xJQ3x6QhN5cQj7h4Fq3V0', 'Solana')
+        expect(described_class).not_to be_valid('0xKXtg2CW87d97TXJSDpbD5xJQ3x6QhN5cQj7h4Fq3V', 'SOL')
+      end
+    end
+
+    context 'Stellar' do
+      it 'validates addresses' do
+        expect(described_class).to be_valid('GD327MCKE45GYHWG22L7EJFULEUDMNOWGWW5WFBE5QD3CYLCI44XITXN', :xlm)
+        expect(described_class).to be_valid('GAQCCRRVYDTBES66MW5GS6ZCVTLLQP4GLV35WI7TWQQYTMWX7MVHDDPY', 'XLM')
+        expect(described_class).to be_valid('GBPGJK2NR6KLWRJOO6FPOQMFNMLLGNHGZCY6ER5MRBTLZN246DFJJ2R2', 'Stellar')
+        expect(described_class).to be_valid('MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAABUTGI4', 'Stellar')
+        expect(described_class).to be_valid('MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAACJUQ', 'Stellar')
+      end
+
+      it 'validates wrong addresses' do
+        expect(described_class).not_to be_valid('wrong', :xlm)
+        expect(described_class).not_to be_valid('GD327MCKE45GYBWG22L7EJFULEUDMNOWGWW5WFBE5QD3CYLCI44XITXN', :xlm)
+        expect(described_class).not_to be_valid('GAQCCRRVYDTBES36MW5GS6ZCVTLLQP4GLV35WI7TWQQYTMWX7MVHDDPY', 'XLM')
+        expect(described_class).not_to be_valid('GBPGJK2NR6KLWRJOO6FPFQMFNMLLGNHGZCY6ER5MRBTLZN246DFJJ2R2', 'Stellar')
+        expect(described_class).not_to be_valid('MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAABAAAAAAAAACJUQ', 'Stellar')
       end
     end
 

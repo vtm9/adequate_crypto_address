@@ -38,10 +38,11 @@ module AdequateCryptoAddress
       end
 
       base58_decoded = begin
-              decode_base58(address)
+                         decode_base58
                        rescue StandardError
                          nil
-            end
+                       end
+
       if base58_decoded && base58_decoded.bytesize == 50 && valid_base58_address_checksum?(base58_decoded)
         case base58_decoded[0...2]
         when '00'
@@ -61,26 +62,27 @@ module AdequateCryptoAddress
     def decode_segwit_address
       actual_hrp, data = Utils::Bech32.decode(address)
 
-      return nil if actual_hrp.nil?
+      return nil unless %w[bc tb].include?(actual_hrp)
 
-      length = data.size
-      return nil if length == 0 || length > 65
-      return nil if actual_hrp != 'bc'
+      return nil if data.empty? || data.size > 65
       return nil if data[0] > 16
 
       program = Utils::Bech32.convert_bits(data[1..-1], from_bits: 5, to_bits: 8, pad: false)
+
       return nil if program.nil?
 
       length = program.size
       return nil if length < 2 || length > 40
-      return nil if data[0] == 0 && length != 20 && length != 32
+      return nil if data[0] == 0 && ![20, 32].include?(length)
+
       return nil if data[0] == 1 && length != 32
 
-      program_hex = program.pack('C*').unpack('H*').first
+      program_hex = program.pack('C*').unpack1('H*')
+
       [data[0], program_hex]
     end
 
-    def decode_base58(_base58_val)
+    def decode_base58
       Base58.base58_to_binary(address, :bitcoin).each_byte.map { |b| b.to_s(16).rjust(2, '0') }.join
     end
 
@@ -94,5 +96,6 @@ module AdequateCryptoAddress
       Digest::SHA256.hexdigest(Digest::SHA256.digest([hex].pack('H*')))[0...8]
     end
   end
+
   Bitcoin = Btc
 end
