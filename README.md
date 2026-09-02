@@ -4,7 +4,6 @@ AdequateCryptoAddress
 
 [![Gem Version][gem-version-svg]][gem-version-link]
 [![Build Status][build-status-svg]][build-status-link]
-[![Code Climate][codeclimate-status-svg]][codeclimate-status-link]
 [![Coverage Status][coverage-status-svg]][coverage-status-link]
 [![Downloads][downloads-svg]][downloads-link]
 [![Docs][docs-rubydoc-svg]][docs-rubydoc-link]
@@ -264,16 +263,14 @@ Individual tasks are available as `mise run test`, `mise run lint`, and `mise ru
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/vtm9/adequate_crypto_address/issues
 
-[gem-version-svg]: https://badge.fury.io/rb/adequate_crypto_address.svg
+[gem-version-svg]: https://img.shields.io/gem/v/adequate_crypto_address.svg
 [gem-version-link]: https://rubygems.org/gems/adequate_crypto_address
-[downloads-svg]: http://ruby-gem-downloads-badge.herokuapp.com/adequate_crypto_address
+[downloads-svg]: https://img.shields.io/gem/dt/adequate_crypto_address.svg
 [downloads-link]: https://rubygems.org/gems/adequate_crypto_address
 [build-status-svg]: https://github.com/vtm9/adequate_crypto_address/actions/workflows/ci.yml/badge.svg?branch=master
 [build-status-link]: https://github.com/vtm9/adequate_crypto_address/actions/workflows/ci.yml
 [coverage-status-svg]: https://coveralls.io/repos/vtm9/adequate_crypto_address/badge.svg?branch=master
 [coverage-status-link]: https://coveralls.io/r/vtm9/adequate_crypto_address?branch=master
-[codeclimate-status-svg]: https://codeclimate.com/github/vtm9/adequate_crypto_address.svg
-[codeclimate-status-link]: https://codeclimate.com/github/vtm9/adequate_crypto_address
 [docs-rubydoc-svg]: https://img.shields.io/badge/docs-rubydoc-blue.svg
 [docs-rubydoc-link]: http://www.rubydoc.info/gems/adequate_crypto_address/
 [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
