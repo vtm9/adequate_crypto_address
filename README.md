@@ -42,12 +42,17 @@ gem install adequate_crypto_address
 
 ### Supported crypto currencies
 
-* Bitcoin/BTC, `'bitcoin'` or `'BTC'` types: `:segwit_v0_keyhash :segwit_v0_scripthash :hash160 :p2sh`
+* Bitcoin/BTC, `'bitcoin'` or `'BTC'` types: `:segwit_v0_keyhash :segwit_v0_scripthash :taproot :hash160 :p2sh :hash160test :p2shtest`
 * BitcoinCash/BCH, `'bitcoincash'` or `'BCH'` types: `:p2sh :p2pkh :p2pkhtest :p2shtest`
+* Cardano/ADA, `'cardano'` or `'ADA'` types: `:prod :test`
 * Dash, `'dash'` or `'DASH'` types: `:prod :test`
+* Dogecoin/DOGE, `'dogecoin'` or `'DOGE'` types: `:prod :test`
 * Zcash/ZEC, `'zcash'` or `'ZEC'` types: `:prod :test`
 * Ethereum/ETH, `'ethereum'` or `'ETH'`
+* Litecoin/LTC, `'litecoin'` or `'LTC'` types: `:prod :test`
 * Ripple/XRP, `'ripple'` or `'XRP'`
+* Solana/SOL, `'solana'` or `'SOL'`
+* Stellar/XLM, `'stellar'` or `'XLM'`
 * Toncoin, `'TON'`
 * Monero/XRM, `'monero'`
 
@@ -110,7 +115,7 @@ class Model < ActiveRecord::Base
 end
 
 ```
-### Add your currnecy
+### Add your currency
 ``` ruby
 # frozen_string_literal: true
 # for Rails /config/initializers/adequate_crypto_address.rb
@@ -133,34 +138,43 @@ AdequateCryptoAddress.valid?('addr', :coin) #=> true
 
 ## Development
 
-Run `rake spec` to run the tests. You can also run `bin/console` for an interactive prompt that will allow you to experiment.
+The repository pins Ruby with [mise](https://mise.jdx.dev/). Install the toolchain and dependencies, then run
+the complete local quality gate:
+
+```bash
+mise trust
+mise install
+mise run setup
+mise run check
+```
+
+Individual tasks are available as `mise run test`, `mise run lint`, and `mise run build`. Use
+`mise run console` for an interactive prompt.
 
 ## Contributing
 
 1. Fork [the repo](https://github.com/vtm9/adequate_crypto_address)
-2. Grab dependencies: `bundle install`
-3. Make sure everything is working: `bundle exec rake spec`
+2. Trust and install the toolchain: `mise trust && mise install`
+3. Grab dependencies: `mise run setup`
 4. Make your changes
-5. Test your changes
-5. Create a Pull Request
-6. Celebrate!!!!!
+5. Make sure everything is working: `mise run check`
+6. Create a pull request
 
 ## Notes
 
 Bug reports and pull requests are welcome on GitHub at https://github.com/vtm9/adequate_crypto_address/issues
 
- [gem-version-svg]: https://badge.fury.io/rb/adequate_crypto_address.svg
- [gem-version-link]: https://rubygems.org/gems/adequate_crypto_address
- [downloads-svg]: http://ruby-gem-downloads-badge.herokuapp.com/adequate_crypto_address
- [downloads-link]: https://rubygems.org/gems/adequate_crypto_address
- [build-status-svg]: https://travis-ci.org/vtm9/adequate_crypto_address.svg?branch=master
- [build-status-link]:https://travis-ci.org/vtm9/adequate_crypto_address
- [coverage-status-svg]: https://coveralls.io/repos/vtm9/adequate_crypto_address/badge.svg?branch=master
- [coverage-status-link]: https://coveralls.io/r/vtm9/adequate_crypto_address?branch=master
- [codeclimate-status-svg]: https://codeclimate.com/github/vtm9/adequate_crypto_address.svg
- [codeclimate-status-link]: https://codeclimate.com/github/vtm9/adequate_crypto_address
- [docs-rubydoc-svg]: https://img.shields.io/badge/docs-rubydoc-blue.svg
- [docs-rubydoc-link]: http://www.rubydoc.info/gems/adequate_crypto_address/
- [license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
- [license-link]: https://github.com/vtm9/adequate_crypto_address/blob/master/LICENSE.txt
-
+[gem-version-svg]: https://badge.fury.io/rb/adequate_crypto_address.svg
+[gem-version-link]: https://rubygems.org/gems/adequate_crypto_address
+[downloads-svg]: http://ruby-gem-downloads-badge.herokuapp.com/adequate_crypto_address
+[downloads-link]: https://rubygems.org/gems/adequate_crypto_address
+[build-status-svg]: https://github.com/vtm9/adequate_crypto_address/actions/workflows/ci.yml/badge.svg?branch=master
+[build-status-link]: https://github.com/vtm9/adequate_crypto_address/actions/workflows/ci.yml
+[coverage-status-svg]: https://coveralls.io/repos/vtm9/adequate_crypto_address/badge.svg?branch=master
+[coverage-status-link]: https://coveralls.io/r/vtm9/adequate_crypto_address?branch=master
+[codeclimate-status-svg]: https://codeclimate.com/github/vtm9/adequate_crypto_address.svg
+[codeclimate-status-link]: https://codeclimate.com/github/vtm9/adequate_crypto_address
+[docs-rubydoc-svg]: https://img.shields.io/badge/docs-rubydoc-blue.svg
+[docs-rubydoc-link]: http://www.rubydoc.info/gems/adequate_crypto_address/
+[license-svg]: https://img.shields.io/badge/license-MIT-blue.svg
+[license-link]: https://github.com/vtm9/adequate_crypto_address/blob/master/LICENSE.txt

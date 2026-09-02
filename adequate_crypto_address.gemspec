@@ -15,7 +15,9 @@ Gem::Specification.new do |spec|
 
   spec.license = 'MIT'
   spec.required_ruby_version = '>= 3.0'
-  spec.files         = `git ls-files`.split($INPUT_RECORD_SEPARATOR)
+  spec.files = Dir.chdir(__dir__) do
+    Dir['{bin,lib}/**/*', 'LICENSE.txt', 'README.md'].select { |path| File.file?(path) }
+  end
   spec.require_paths = ['lib']
 
   spec.add_dependency 'base58', '~> 0.2'

@@ -1,0 +1,33 @@
+[tools]
+ruby = "4.0"
+
+[settings]
+ruby.compile = false
+
+[tasks.setup]
+description = "Install development dependencies"
+run = "bundle install"
+
+[tasks.test]
+description = "Run the RSpec suite"
+run = "bundle exec rspec"
+
+[tasks.lint]
+description = "Run RuboCop"
+run = "bundle exec ruby -rrubocop -e 'exit RuboCop::CLI.new.run(ARGV)' -- --cache false"
+
+[tasks.build]
+description = "Build the gem"
+run = "bundle exec rake build"
+
+[tasks.check]
+description = "Run the complete local quality gate"
+run = [
+  { task = "test" },
+  { task = "lint" },
+  { task = "build" },
+]
+
+[tasks.console]
+description = "Open the development console"
+run = "bundle exec bin/console"

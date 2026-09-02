@@ -1,7 +1,13 @@
-require: rubocop-rspec
+inherit_from: .rubocop_todo.yml
+
+plugins:
+  - rubocop-rspec
 
 AllCops:
   DisplayCopNames: true
+  NewCops: disable
+  SuggestExtensions: false
+  TargetRubyVersion: 3.0
 
 Naming/AccessorMethodName:
   Description: Check the naming of accessor methods for get_/set_.
@@ -10,7 +16,7 @@ Naming/AccessorMethodName:
 Style/DocumentationMethod:
   RequireForNonPublicMethods: false
 
-Documentation:
+Style/Documentation:
   Enabled: false
 
 Style/ClassAndModuleChildren:
@@ -19,7 +25,7 @@ Style/ClassAndModuleChildren:
 Style/NegatedIf:
   Enabled: false
 
-Metrics/LineLength:
+Layout/LineLength:
   Max: 120
 
 Metrics/MethodLength:
@@ -33,4 +39,3 @@ Style/StringLiterals:
   EnforcedStyle: single_quotes
   SupportedStyles:
     - single_quotes
-
