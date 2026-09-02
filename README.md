@@ -28,6 +28,14 @@ Or install it yourself as:
 gem install adequate_crypto_address
 ```
 
+## Upgrading to 0.3.0
+
+0.3.0 is additive and has no breaking changes — upgrade freely. It adds
+validators for TRON (`trx`/`tron`), Tezos (`xtz`/`tezos`), Cosmos
+(`atom`/`cosmos`), and BNB Smart Chain (`bsc`/`binancesmartchain`); see the
+[supported crypto currencies](#supported-crypto-currencies) list for their
+types. If you are coming from 0.1.x, also read the notes below.
+
 ## Upgrading from 0.1.x to 0.2.0
 
 0.2.0 hardens the validators against malformed input and makes the
