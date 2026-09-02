@@ -33,6 +33,11 @@ RSpec.describe(AdequateCryptoAddress) do
         # testnet3 / testnet4
         expect(described_class).to be_valid('tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx', 'BTC')
         expect(described_class).to be_valid('tb1qg3hss5p9g9jp0es5u5aaz3lszf6cvdggtmjarr', 'bitcoin', :segwit_v0_keyhash)
+        expect(described_class).to be_valid(
+          'tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sl5k7',
+          'bitcoin',
+          :segwit_v0_scripthash
+        )
       end
 
       it 'validates taproot addresses' do
@@ -59,6 +64,15 @@ RSpec.describe(AdequateCryptoAddress) do
         expect(described_class).not_to be_valid('bc1gmk9yu', 'bitcoin')
         expect(described_class).not_to be_valid('bc1p5d7rjq7g6rdk2yhzks9smlqfpuecypus6uf4e9qrsssrwc09', 'bitcoin') # invalid checksum
         expect(described_class).not_to be_valid('bc1p5d7rjq7g6rdk2yhzks9smlqfpuecypus6uf4e9qrsssrwc0', 'bitcoin') # too short
+        # BIP-350: v0 must use Bech32 and v1+ must use Bech32m.
+        expect(described_class).not_to be_valid(
+          'tb1q0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vq24jc47',
+          'bitcoin'
+        )
+        expect(described_class).not_to be_valid(
+          'bc1p0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vqh2y7hd',
+          'bitcoin'
+        )
       end
     end
 
@@ -202,10 +216,24 @@ RSpec.describe(AdequateCryptoAddress) do
         expect(described_class).to be_valid('addr1q9dhugez3ka82k2kgh7r2lg0j7aztr8uell46kydfwu3vk6n8w2cdu8mn2ha278q6q25a9rc6gmpfeekavuargcd32vsvxhl7e', 'ADA', :prod)
         expect(described_class).to be_valid('addr1q8gg2r3vf9zggn48g7m8vx62rwf6warcs4k7ej8mdzmqmesj30jz7psduyk6n4n2qrud2xlv9fgj53n6ds3t8cs4fvzs05yzmz', 'Cardano')
         expect(described_class).to be_valid('addr1wx6hd6gradhx8m7l2sn5w8pp2vuh22glwq65w07wjfqlf7qlh3dvr', 'Cardano')
+        expect(described_class).to be_valid(
+          'addr1gx2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer5pnz75xxcrzqf96k',
+          'Cardano',
+          :prod
+        )
+        expect(described_class).to be_valid(
+          'addr128phkx6acpnf78fuvxn0mkew3l0fd058hzquvz7w36x4gtupnz75xxcrtw79hu',
+          'ADA'
+        )
 
         expect(described_class).to be_valid('addr_test1qqx3d3kxe37k76wrpeck338g6zk47hjfz6t04t7n8m7t8yjkvjhxw6ysgfejsde09fmtznsnwzaphdl774qh49nu7vcsgq5wqa', 'ADA', :test)
         expect(described_class).to be_valid('addr_test1qp4q5p7zj32vcd07ncywvuh0ca99p2w4fnv547ua5utmsuv0pten2usz500r333ck0v0amvvqdgxyrrh4t6swagsl4zsp7d6r8', 'Cardano', :test)
         expect(described_class).to be_valid('addr_test1vr842a8uhw3pd3m4dqqgkm7p8fhy75grudpr8jht58yygzqtfcv4g', 'Cardano', :test)
+        expect(described_class).to be_valid(
+          'addr_test1gz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer5pnz75xxcrdw5vky',
+          'Cardano',
+          :test
+        )
       end
 
       it 'validates wrong addresses' do
@@ -214,6 +242,11 @@ RSpec.describe(AdequateCryptoAddress) do
         expect(described_class).not_to be_valid('addr1q9dhugez3ka82k2kgh7r4lg0j7aztr8uell46kydfwu3vk6n8w2cdu8mn2ha278q6q25a9rc6gmpfeekavuargcd32vsvxhl7e', 'ADA', :prod)
         expect(described_class).not_to be_valid('addr1v9jxv7k0z9m3k4f0k8h5l6h9m7q3x6w8v0j7q2x0r8z5h0k9d2', 'Cardano')
         expect(described_class).not_to be_valid('addr_test1qp4q5p7zj32vcd07nnywvuh0ca99p2w4fnv547ua5utmsuv0pten2usz500r333ck0v0amvvqdgxyrrh4t6swagsl4zsp7d6r8', 'Cardano', :test)
+        # Cardano uses Bech32, not Bech32m.
+        expect(described_class).not_to be_valid(
+          'addr1wx6hd6gradhx8m7l2sn5w8pp2vuh22glwq65w07wjfqlf7q2tppfp',
+          'Cardano'
+        )
       end
     end
 

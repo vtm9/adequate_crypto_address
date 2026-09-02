@@ -68,8 +68,8 @@ module AdequateCryptoAddress
         #   buf.pack('C*')
         # end
 
-        # rubocop:disable CyclomaticComplexity,PerceivedComplexity
-        def decode(input, ignore_length: false)
+        # rubocop:disable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
+        def decode(input, ignore_length: false, include_encoding: false)
           chk = 1
           input_len = input.bytesize
           have_lower = false
@@ -122,13 +122,17 @@ module AdequateCryptoAddress
           end
 
           return nil if have_lower && have_upper
-          
-          # Accept both Bech32 (chk == 1) and Bech32m (chk == 0x2bc830a3)
-          return nil unless chk == 1 || chk == 0x2bc830a3
 
-          [hrp.pack('C*'), data]
+          encoding = case chk
+                     when 1 then :bech32
+                     when 0x2bc830a3 then :bech32m
+                     end
+          return nil unless encoding
+
+          decoded = [hrp.pack('C*'), data]
+          include_encoding ? decoded << encoding : decoded
         end
-        # rubocop:enable CyclomaticComplexity,PerceivedComplexity
+        # rubocop:enable Metrics/CyclomaticComplexity,Metrics/PerceivedComplexity
 
         # Utility for converting bytes of data between bases. These is used for
         # BIP 173 address encoding/decoding to convert between sequences of bytes
@@ -142,6 +146,7 @@ module AdequateCryptoAddress
         #     => "\x1F\x1F\x1F\10"
         #
         # See https://github.com/bitcoin/bitcoin/blob/595a7bab23bc21049526229054ea1fff1a29c0bf/src/utilstrencodings.h#L154
+        # rubocop:disable Metrics/CyclomaticComplexity
         def convert_bits(chunks, from_bits:, to_bits:, pad:)
           output_mask = (1 << to_bits) - 1
           buffer_mask = (1 << (from_bits + to_bits - 1)) - 1
@@ -165,6 +170,7 @@ module AdequateCryptoAddress
 
           output
         end
+        # rubocop:enable Metrics/CyclomaticComplexity
       end
     end
   end

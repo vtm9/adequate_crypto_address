@@ -32,7 +32,7 @@ module AdequateCryptoAddress
     end
 
     def decode_segwit_address
-      actual_hrp, data = Utils::Bech32.decode(address)
+      actual_hrp, data, encoding = Utils::Bech32.decode(address, include_encoding: true)
 
       return nil if actual_hrp.nil?
 
@@ -40,6 +40,8 @@ module AdequateCryptoAddress
       return nil if length == 0 || length > 65
       return nil unless %w[ltc tltc].include?(actual_hrp)
       return nil if data[0] > 16
+      return nil if data[0].zero? && encoding != :bech32
+      return nil if data[0].positive? && encoding != :bech32m
 
       program = Utils::Bech32.convert_bits(data[1..-1], from_bits: 5, to_bits: 8, pad: false)
       return nil if program.nil?
