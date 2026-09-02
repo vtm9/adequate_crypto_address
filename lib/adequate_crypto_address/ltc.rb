@@ -7,52 +7,56 @@ module AdequateCryptoAddress
     private
 
     def address_type
-      segwit_decoded = begin
-                         decode_segwit_address
-                       rescue StandardError
-                         nil
-                       end
+      segwit_address_type || super
+    end
 
-      if segwit_decoded
-        witness_version, witness_program_hex, hrp = segwit_decoded
-        witness_program = [witness_program_hex].pack('H*')
+    def segwit_address_type
+      witness_version, witness_program_hex, hrp = safely_decode_segwit_address
+      return unless witness_version
 
-        if witness_version == 0
-          return :prod if hrp == 'ltc' && [20, 32].include?(witness_program.bytesize)
-          return :test if hrp == 'tltc' && [20, 32].include?(witness_program.bytesize)
-        end
+      witness_program_size = witness_program_hex.length / 2
+      return unless valid_known_witness_program?(witness_version, witness_program_size)
 
-        if witness_version == 1 && witness_program.bytesize == 32
-          return :prod if hrp == 'ltc'
-          return :test if hrp == 'tltc'
-        end
-      end
-
-      super
+      { 'ltc' => :prod, 'tltc' => :test }[hrp]
     end
 
     def decode_segwit_address
       actual_hrp, data, encoding = Utils::Bech32.decode(address, include_encoding: true)
-
-      return nil if actual_hrp.nil?
-
-      length = data.size
-      return nil if length == 0 || length > 65
       return nil unless %w[ltc tltc].include?(actual_hrp)
-      return nil if data[0] > 16
-      return nil if data[0].zero? && encoding != :bech32
-      return nil if data[0].positive? && encoding != :bech32m
+      return nil if data.empty? || data.size > 65
 
-      program = Utils::Bech32.convert_bits(data[1..-1], from_bits: 5, to_bits: 8, pad: false)
-      return nil if program.nil?
+      witness_version = data.first
+      return nil unless valid_witness_encoding?(witness_version, encoding)
 
-      length = program.size
-      return nil if length < 2 || length > 40
-      return nil if data[0] == 0 && length != 20 && length != 32
-      return nil if data[0] == 1 && length != 32
+      program = Utils::Bech32.convert_bits(data[1..], from_bits: 5, to_bits: 8, pad: false)
+      return nil unless valid_witness_program?(witness_version, program)
 
-      program_hex = program.pack('C*').unpack('H*').first
-      [data[0], program_hex, actual_hrp]
+      program_hex = program.pack('C*').unpack1('H*')
+      [witness_version, program_hex, actual_hrp]
+    end
+
+    def valid_witness_encoding?(witness_version, encoding)
+      return false unless witness_version&.between?(0, 16)
+
+      encoding == (witness_version.zero? ? :bech32 : :bech32m)
+    end
+
+    def valid_witness_program?(witness_version, program)
+      return false unless program&.size&.between?(2, 40)
+      return [20, 32].include?(program.size) if witness_version.zero?
+      return program.size == 32 if witness_version == 1
+
+      true
+    end
+
+    def valid_known_witness_program?(witness_version, program_size)
+      (witness_version.zero? && [20, 32].include?(program_size)) || (witness_version == 1 && program_size == 32)
+    end
+
+    def safely_decode_segwit_address
+      decode_segwit_address
+    rescue StandardError
+      []
     end
   end
   Litecoin = Ltc

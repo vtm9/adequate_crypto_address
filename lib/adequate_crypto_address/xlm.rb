@@ -18,8 +18,7 @@ module AdequateCryptoAddress
       valid_address?
     end
 
-    def address_type
-    end
+    def address_type; end
 
     private
 
@@ -65,7 +64,7 @@ module AdequateCryptoAddress
 
         8.times do
           crc =
-            if (crc & 0x8000) != 0
+            if crc.anybits?(0x8000)
               (crc << 1) ^ 0x1021
             else
               crc << 1

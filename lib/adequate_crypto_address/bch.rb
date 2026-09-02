@@ -5,6 +5,7 @@ require 'digest'
 
 module AdequateCryptoAddress
   class InvalidAddress < StandardError; end
+
   class Bch
     class InvalidLegacyAddress < ::AdequateCryptoAddress::InvalidAddress; end
     class InvalidCashAddress < ::AdequateCryptoAddress::InvalidAddress; end
@@ -79,42 +80,53 @@ module AdequateCryptoAddress
     end
 
     def from_cash_string
-      if (raw_address.upcase != raw_address) && (raw_address.downcase != raw_address)
-        raise(InvalidCashAddress, 'Cash address contains uppercase and lowercase characters')
-      end
+      validate_cash_address_case!
 
       @raw_address = raw_address.downcase
       @raw_address = "#{DEFAULT_PREFIX}:#{raw_address}" if !raw_address.include?(':')
 
       @prefix, base32string = raw_address.split(':')
-      decoded = b32decode(base32string)
+      converted = decode_cash_payload(base32string)
+      assign_cash_payload(converted)
+    end
 
-      raise(InvalidCashAddress, 'Bad cash address checksum') if !verify_cash_checksum(decoded)
-
-      converted = convertbits(decoded, 5, 8)
+    def assign_cash_payload(converted)
       @type = address_type(:cash, converted[0].to_i)[0]
       @payload = converted[1..-7]
-
-      @type = :p2shtest if prefix == 'bchtest' && type == :p2sh
-      @type = :p2pkhtest if prefix == 'bchtest' && type == :p2pkh
+      @type = testnet_type(type) if prefix == 'bchtest'
     end
 
     def from_legacy_string
-      decoded = nil
-      begin
-        decoded = Base58.base58_to_binary(raw_address, :bitcoin).bytes
-      rescue StandardError
-        raise(InvalidLegacyAddress, 'Could not decode legacy address')
-      end
+      decoded = decode_legacy_address
 
       @type = address_type(:legacy, decoded[0].to_i)[0]
       @payload = decoded[1..-5]
-      @digest = decoded[-4..-1]
+      @digest = decoded[-4..]
       @prefix = DEFAULT_PREFIX
-
-      @type = :p2shtest if prefix == 'bchtest' && type == :p2sh
-      @type = :p2pkhtest if prefix == 'bchtest' && type == :p2pkh
       @prefix = 'bchtest' if [:p2shtest, :p2pkhtest].include?(type)
+    end
+
+    def validate_cash_address_case!
+      return if raw_address.upcase == raw_address || raw_address.downcase == raw_address
+
+      raise(InvalidCashAddress, 'Cash address contains uppercase and lowercase characters')
+    end
+
+    def decode_cash_payload(base32string)
+      decoded = b32decode(base32string)
+      raise(InvalidCashAddress, 'Bad cash address checksum') unless verify_cash_checksum(decoded)
+
+      convertbits(decoded, 5, 8)
+    end
+
+    def decode_legacy_address
+      Base58.base58_to_binary(raw_address, :bitcoin).bytes
+    rescue StandardError
+      raise(InvalidLegacyAddress, 'Could not decode legacy address')
+    end
+
+    def testnet_type(address_type)
+      { p2sh: :p2shtest, p2pkh: :p2pkhtest }.fetch(address_type)
     end
   end
 

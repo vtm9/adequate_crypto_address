@@ -8,14 +8,14 @@ module AdequateCryptoAddress
       module_function
 
       def code_list_to_string(code_list)
-        code_list.map { |i| Array(i).pack('C*') }.flatten.join
+        code_list.map { |i| Array(i).pack('C*') }.join
       end
 
       def b32decode(inputs)
         out = []
         return out unless inputs
 
-        inputs.split('').each do |letter|
+        inputs.chars.each do |letter|
           out.push(CHARSET.index(letter))
         end
         out
@@ -34,7 +34,7 @@ module AdequateCryptoAddress
           top = chk >> 35
           chk = ((chk & 0x07ffffffff) << 5) ^ value
           generator.each do |i|
-            chk ^= i[1] if (top & i[0]) != 0
+            chk ^= i[1] if top.anybits?(i[0])
           end
         end
         chk ^ 1
@@ -42,7 +42,7 @@ module AdequateCryptoAddress
 
       def expanded_prefix
         val = if prefix
-                prefix.to_s.split('').map do |i|
+                prefix.to_s.chars.map do |i|
                   i.ord & 0x1f
                 end
               else
@@ -56,13 +56,13 @@ module AdequateCryptoAddress
         poly = polymod(expanded_prefix + payload + [0, 0, 0, 0, 0, 0, 0, 0])
         out = []
         8.times do |i|
-          out.push((poly >> 5 * (7 - i)) & 0x1f)
+          out.push((poly >> (5 * (7 - i))) & 0x1f)
         end
         out
       end
 
       def verify_cash_checksum(payload)
-        polymod(expanded_prefix + payload) == 0
+        polymod(expanded_prefix + payload).zero?
       rescue TypeError
         raise AdequateCryptoAddress::InvalidAddress
       end
@@ -75,28 +75,8 @@ module AdequateCryptoAddress
         out
       end
 
-      def convertbits(data, frombits, tobits, pad = true)
-        acc = 0
-        bits = 0
-        ret = []
-        maxv = (1 << tobits) - 1
-        max_acc = (1 << (frombits + tobits - 1)) - 1
-        data.each do |value|
-          return nil if value < 0 || ((value >> frombits) != 0)
-
-          acc = ((acc << frombits) | value) & max_acc
-          bits += frombits
-          while bits >= tobits
-            bits -= tobits
-            ret.push((acc >> bits) & maxv)
-          end
-        end
-        if pad
-          ret.push((acc << (tobits - bits)) & maxv) if bits != 0
-        elsif bits >= frombits || (((acc << (tobits - bits)) & maxv) != 0)
-          return nil
-        end
-        ret
+      def convertbits(data, frombits, tobits, pad: true)
+        Bech32.convert_bits(data, from_bits: frombits, to_bits: tobits, pad: pad)
       end
     end
   end

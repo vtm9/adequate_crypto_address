@@ -22,13 +22,15 @@ module AdequateCryptoAddress
     def address_type
       return nil unless [95, 106].include?(address.size)
 
-      return :monero if pattern_valid?
+      :monero if pattern_valid?
     end
 
     def pattern_valid?
-      address.size == 95 ?
-        address.match(/^4|8[0-9AB][1-9A-HJ-NP-Za-km-z]{93}$/) :
+      if address.size == 95
+        address.match(/^4|8[0-9AB][1-9A-HJ-NP-Za-km-z]{93}$/)
+      else
         address.match(/^4|8[1-9A-HJ-NP-Za-km-z]{105}(?:[1-9A-HJ-NP-Za-km-z]{30})?$/)
+      end
     end
   end
   Monero = Xmr

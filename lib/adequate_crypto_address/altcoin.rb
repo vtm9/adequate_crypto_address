@@ -28,19 +28,23 @@ module AdequateCryptoAddress
     attr_reader :decoded
 
     def address_type
-      @decoded = begin
-              decode_base58
-                 rescue StandardError
-                   nil
-            end
-      if decoded && decoded.bytesize == self.class::EXPECTED_LENGTH && valid_address_checksum?
-        self.class::ADDRESS_TYPES.each do |net_type, net_prefixes|
-          net_prefixes.each do |net_prefix|
-            return net_type if decoded.start_with?(net_prefix)
-          end
-        end
+      @decoded = safely_decode_base58
+      return unless valid_decoded_address?
+
+      matching_type = self.class::ADDRESS_TYPES.find do |_network, prefixes|
+        prefixes.any? { |prefix| decoded.start_with?(prefix) }
       end
+      matching_type&.first
+    end
+
+    def safely_decode_base58
+      decode_base58
+    rescue StandardError
       nil
+    end
+
+    def valid_decoded_address?
+      decoded&.bytesize == self.class::EXPECTED_LENGTH && valid_address_checksum?
     end
 
     def decode_base58
@@ -50,7 +54,7 @@ module AdequateCryptoAddress
     def valid_address_checksum?
       return false unless decoded
 
-      checksum(decoded[0...-8]) == decoded[-8..-1]
+      checksum(decoded[0...-8]) == decoded[-8..]
     end
 
     def checksum(bytes)

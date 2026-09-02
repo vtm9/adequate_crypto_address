@@ -25,12 +25,7 @@ module AdequateCryptoAddress
     private
 
     def address_type
-      decoded = begin
-        decode_address
-      rescue StandardError
-        nil
-      end
-
+      decoded = safely_decode_address
       return nil unless decoded
 
       bytes, hrp = decoded
@@ -44,6 +39,12 @@ module AdequateCryptoAddress
       return :prod if hrp == 'addr' && network == 1
       return :test if hrp == 'addr_test' && network.zero?
 
+      nil
+    end
+
+    def safely_decode_address
+      decode_address
+    rescue StandardError
       nil
     end
 
@@ -104,7 +105,7 @@ module AdequateCryptoAddress
           return false if first_byte && byte == 0x80
 
           first_byte = false
-          break if (byte & 0x80).zero?
+          break if byte.nobits?(0x80)
         end
       end
 

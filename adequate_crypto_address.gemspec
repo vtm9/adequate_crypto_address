@@ -12,6 +12,7 @@ Gem::Specification.new do |spec|
   spec.summary     = 'Ruby helpers for validating cryptocurrency addresses.'
   spec.description = 'Provides Ruby helpers to validate cryptocurrency addresses across common chains.'
   spec.homepage = 'https://github.com/vtm9/adequate_crypto_address'
+  spec.metadata['rubygems_mfa_required'] = 'true'
 
   spec.license = 'MIT'
   spec.required_ruby_version = '>= 3.0'
@@ -22,6 +23,4 @@ Gem::Specification.new do |spec|
 
   spec.add_dependency 'base58', '~> 0.2'
   spec.add_dependency 'keccak', '~> 1.3'
-  spec.add_development_dependency 'rake', '~> 13.2'
-  spec.add_development_dependency 'rspec', '~> 3.13'
 end

@@ -37,8 +37,6 @@ module AdequateCryptoAddress
       normalize(cased.join)
     end
 
-    private
-
     def checksum_matches?
       address == checksummed
     end
@@ -67,16 +65,16 @@ module AdequateCryptoAddress
       remove_hex_prefix address
     end
 
-    def remove_hex_prefix(s)
-      s[0, 2] == '0x' ? s[2..-1] : s
+    def remove_hex_prefix(string)
+      string[0, 2] == '0x' ? string[2..] : string
     end
 
     def bin_to_hex(string)
       string.unpack1('H*')
     end
 
-    def keccak256(x)
-      Digest::Keccak.new(256).digest(x)
+    def keccak256(input)
+      Digest::Keccak.new(256).digest(input)
     end
   end
   Ethereum = Eth

@@ -1,11 +1,9 @@
-inherit_from: .rubocop_todo.yml
-
 plugins:
   - rubocop-rspec
 
 AllCops:
   DisplayCopNames: true
-  NewCops: disable
+  NewCops: enable
   SuggestExtensions: false
   TargetRubyVersion: 3.0
 
@@ -27,9 +25,20 @@ Style/NegatedIf:
 
 Layout/LineLength:
   Max: 120
+  AllowedPatterns:
+    - "^\\s*'[A-Za-z0-9:_-]+',?$"
 
 Metrics/MethodLength:
   Max: 30
+
+Metrics/ClassLength:
+  Max: 130
+
+Metrics/ModuleLength:
+  Max: 140
+
+RSpec/ExampleLength:
+  Max: 40
 
 Style/SymbolArray:
   Enabled: true

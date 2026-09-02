@@ -20,7 +20,7 @@ module AdequateCryptoAddress
     private
 
     def address_type
-      return :TON if address.size == 48 && pattern_valid?
+      :TON if address.size == 48 && pattern_valid?
     end
 
     def pattern_valid?

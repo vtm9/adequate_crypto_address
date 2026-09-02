@@ -2,6 +2,13 @@
 
 module AdequateCryptoAddress
   class Btc
+    BASE58_TYPES = {
+      '00' => :hash160,
+      '05' => :p2sh,
+      '6f' => :hash160test,
+      'c4' => :p2shtest
+    }.freeze
+
     attr_reader :address, :type
     alias raw_address address
 
@@ -21,67 +28,66 @@ module AdequateCryptoAddress
     private
 
     def address_type
-      segwit_decoded = begin
-                         decode_segwit_address
-                       rescue StandardError
-                         nil
-                       end
-      if segwit_decoded
-        witness_version, witness_program_hex = segwit_decoded
-        witness_program = [witness_program_hex].pack('H*')
+      segwit_address_type || base58_address_type
+    end
 
-        return :segwit_v0_keyhash if witness_version == 0 && witness_program.bytesize == 20
+    def segwit_address_type
+      witness_version, witness_program_hex = safely_decode_segwit_address
+      return unless witness_version
 
-        return :segwit_v0_scripthash if witness_version == 0 && witness_program.bytesize == 32
+      witness_program_size = witness_program_hex.length / 2
+      return { 20 => :segwit_v0_keyhash, 32 => :segwit_v0_scripthash }[witness_program_size] if witness_version.zero?
 
-        return :taproot if witness_version == 1 && witness_program.bytesize == 32
-      end
+      :taproot if witness_version == 1 && witness_program_size == 32
+    end
 
-      base58_decoded = begin
-                         decode_base58
-                       rescue StandardError
-                         nil
-                       end
+    def base58_address_type
+      decoded = safely_decode_base58
+      return unless decoded&.bytesize == 50
+      return unless valid_base58_address_checksum?(decoded)
 
-      if base58_decoded && base58_decoded.bytesize == 50 && valid_base58_address_checksum?(base58_decoded)
-        case base58_decoded[0...2]
-        when '00'
-          return :hash160
-        when '05'
-          return :p2sh
-        when '6f'
-          return :hash160test
-        when 'c4'
-          return :p2shtest
-        end
-      end
-
-      nil
+      BASE58_TYPES[decoded[0...2]]
     end
 
     def decode_segwit_address
       actual_hrp, data, encoding = Utils::Bech32.decode(address, include_encoding: true)
-
       return nil unless %w[bc tb].include?(actual_hrp)
-
       return nil if data.empty? || data.size > 65
-      return nil if data[0] > 16
-      return nil if data[0].zero? && encoding != :bech32
-      return nil if data[0].positive? && encoding != :bech32m
 
-      program = Utils::Bech32.convert_bits(data[1..-1], from_bits: 5, to_bits: 8, pad: false)
+      witness_version = data.first
+      return nil unless valid_witness_encoding?(witness_version, encoding)
 
-      return nil if program.nil?
-
-      length = program.size
-      return nil if length < 2 || length > 40
-      return nil if data[0] == 0 && ![20, 32].include?(length)
-
-      return nil if data[0] == 1 && length != 32
+      program = Utils::Bech32.convert_bits(data[1..], from_bits: 5, to_bits: 8, pad: false)
+      return nil unless valid_witness_program?(witness_version, program)
 
       program_hex = program.pack('C*').unpack1('H*')
+      [witness_version, program_hex]
+    end
 
-      [data[0], program_hex]
+    def valid_witness_encoding?(witness_version, encoding)
+      return false unless witness_version&.between?(0, 16)
+
+      encoding == (witness_version.zero? ? :bech32 : :bech32m)
+    end
+
+    def valid_witness_program?(witness_version, program)
+      return false unless program&.size&.between?(2, 40)
+      return [20, 32].include?(program.size) if witness_version.zero?
+      return program.size == 32 if witness_version == 1
+
+      true
+    end
+
+    def safely_decode_segwit_address
+      decode_segwit_address
+    rescue StandardError
+      []
+    end
+
+    def safely_decode_base58
+      decode_base58
+    rescue StandardError
+      nil
     end
 
     def decode_base58
@@ -91,7 +97,7 @@ module AdequateCryptoAddress
     def valid_base58_address_checksum?(base58_decoded)
       return false unless base58_decoded
 
-      checksum(base58_decoded[0...-8]) == base58_decoded[-8..-1]
+      checksum(base58_decoded[0...-8]) == base58_decoded[-8..]
     end
 
     def checksum(hex)

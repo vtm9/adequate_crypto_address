@@ -1,8 +1,8 @@
 # frozen_string_literal: true
 
-RSpec.describe(AdequateCryptoAddress) do
+RSpec.describe(AdequateCryptoAddress, :aggregate_failures) do
   describe '.valid?' do
-    context 'Bitcoin' do
+    describe 'Bitcoin' do
       it 'validates hash160 addresses' do
         expect(described_class).to be_valid('12KYrjTdVGjFMtaxERSk3gphreJ5US8aUP', 'bitcoin')
         expect(described_class).to be_valid('12QeMLzSrB8XH8FvEzPMVoRxVAzTr5XM2y', 'BTC')
@@ -29,7 +29,8 @@ RSpec.describe(AdequateCryptoAddress) do
         expect(described_class).to be_valid('bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq', 'bitcoin')
         expect(described_class).to be_valid('bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq', 'bitcoin', :segwit_v0_keyhash)
         expect(described_class).to be_valid('bc1qc7slrfxkknqcq2jevvvkdgvrt8080852dfjewde450xdlk4ugp7szw5tk9', 'BTC')
-        expect(described_class).to be_valid('bc1qc7slrfxkknqcq2jevvvkdgvrt8080852dfjewde450xdlk4ugp7szw5tk9', 'bitcoin', :segwit_v0_scripthash)
+        expect(described_class).to be_valid('bc1qc7slrfxkknqcq2jevvvkdgvrt8080852dfjewde450xdlk4ugp7szw5tk9',
+                                            'bitcoin', :segwit_v0_scripthash)
         # testnet3 / testnet4
         expect(described_class).to be_valid('tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx', 'BTC')
         expect(described_class).to be_valid('tb1qg3hss5p9g9jp0es5u5aaz3lszf6cvdggtmjarr', 'bitcoin', :segwit_v0_keyhash)
@@ -42,10 +43,12 @@ RSpec.describe(AdequateCryptoAddress) do
 
       it 'validates taproot addresses' do
         expect(described_class).to be_valid('bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr', 'bitcoin')
-        expect(described_class).to be_valid('bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr', 'BTC', :taproot)
+        expect(described_class).to be_valid('bc1p5cyxnuxmeuwuvkwfem96lqzszd02n6xdcjrs20cac6yqjjwudpxqkedrcr', 'BTC',
+                                            :taproot)
         # testnet3 / testnet4
         expect(described_class).to be_valid('tb1pzt53e6nghqw40zglfzn56cdj82xx68nsd84z3yn5pl6xxj2v3n9qrsheeh', 'BTC')
-        expect(described_class).to be_valid('tb1pjfdm902y2adr08qnn4tahxjvp6x5selgmvzx63yfqk2hdey02yvqjcr29q', 'bitcoin', :taproot)
+        expect(described_class).to be_valid('tb1pjfdm902y2adr08qnn4tahxjvp6x5selgmvzx63yfqk2hdey02yvqjcr29q',
+                                            'bitcoin', :taproot)
       end
 
       it 'validates wrong addresses' do
@@ -56,14 +59,23 @@ RSpec.describe(AdequateCryptoAddress) do
         expect(described_class).not_to be_valid('bc1qw508d6qejxtdg4y5r3zarvary0c5xw7kv8f3t5', 'bitcoin')
         expect(described_class).not_to be_valid('BC13W508D6QEJXTDG4Y5R3ZARVARY0C5XW7KN40WF2', 'bitcoin')
         expect(described_class).not_to be_valid('bc1rw5uspcuh', 'bitcoin')
-        expect(described_class).not_to be_valid('bc10w508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kw5rljs90', 'bitcoin')
+        expect(described_class).not_to be_valid(
+          'bc10w508d6qejxtdg4y5r3zarvary0c5xw7kw508d6qejxtdg4y5r3zarvary0c5xw7kw5rljs90', 'bitcoin'
+        )
         expect(described_class).not_to be_valid('BC1QR508D6QEJXTDG4Y5R3ZARVARYV98GJ9P', 'bitcoin')
         expect(described_class).not_to be_valid('tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3q0sL5k7', 'BTC')
         expect(described_class).not_to be_valid('bc1zw508d6qejxtdg4y5r3zarvaryvqyzf3du', 'bitcoin')
-        expect(described_class).not_to be_valid('tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3pjxtptv', 'Bitcoin')
+        expect(described_class).not_to be_valid('tb1qrp33g0q5c5txsp9arysrx4k6zdkfs4nce4xj0gdcccefvpysxf3pjxtptv',
+                                                'Bitcoin')
         expect(described_class).not_to be_valid('bc1gmk9yu', 'bitcoin')
-        expect(described_class).not_to be_valid('bc1p5d7rjq7g6rdk2yhzks9smlqfpuecypus6uf4e9qrsssrwc09', 'bitcoin') # invalid checksum
-        expect(described_class).not_to be_valid('bc1p5d7rjq7g6rdk2yhzks9smlqfpuecypus6uf4e9qrsssrwc0', 'bitcoin') # too short
+        # Invalid checksum.
+        expect(described_class).not_to be_valid(
+          'bc1p5d7rjq7g6rdk2yhzks9smlqfpuecypus6uf4e9qrsssrwc09', 'bitcoin'
+        )
+        # Too short.
+        expect(described_class).not_to be_valid(
+          'bc1p5d7rjq7g6rdk2yhzks9smlqfpuecypus6uf4e9qrsssrwc0', 'bitcoin'
+        )
         # BIP-350: v0 must use Bech32 and v1+ must use Bech32m.
         expect(described_class).not_to be_valid(
           'tb1q0xlxvlhemja6c4dqv22uapctqupfhlxm9h8z3k2e72q4k9hcz7vq24jc47',
@@ -76,7 +88,7 @@ RSpec.describe(AdequateCryptoAddress) do
       end
     end
 
-    context 'Bitcoincash' do
+    describe 'Bitcoincash' do
       it 'validates legacy addresses' do
         expect(described_class).to be_valid('3CWFddi6m4ndiGyKqzYvsFYagqDLPVMTzC', :bch, :p2sh)
         expect(described_class).to be_valid('155fzsEBHy9Ri2bMQ8uuuR3tv1YzcDywd4', 'bitcoincash', :p2pkh)
@@ -86,8 +98,10 @@ RSpec.describe(AdequateCryptoAddress) do
 
       it 'validates cash addresses' do
         expect(described_class).to be_valid('bitcoincash:qqkv9wr69ry2p9l53lxp635va4h86wv435995w8p2h', :bch, :p2pkh)
-        expect(described_class).to be_valid('bitcoincash:pqdg9uq52wzhf228hweext9j2jdjgdpj9qt7xxfngd', :bitcoincash, :p2sh)
-        expect(described_class).to be_valid('bchtest:qpqtmmfpw79thzq5z7s0spcd87uhn6d34uqqem83hf', :Bitcoincash, :p2pkhtest)
+        expect(described_class).to be_valid('bitcoincash:pqdg9uq52wzhf228hweext9j2jdjgdpj9qt7xxfngd', :bitcoincash,
+                                            :p2sh)
+        expect(described_class).to be_valid('bchtest:qpqtmmfpw79thzq5z7s0spcd87uhn6d34uqqem83hf', :Bitcoincash,
+                                            :p2pkhtest)
         expect(described_class).to be_valid('bchtest:pp8f7ww2g6y07ypp9r4yendrgyznysc9kqxh6acwu3', :BCH, :p2shtest)
         expect(described_class).to be_valid('bitcoincash:qrtj3rd8524cndt2eew3s6wljqggmne00sgh4kfypk', :bitcoincash)
       end
@@ -103,14 +117,17 @@ RSpec.describe(AdequateCryptoAddress) do
         expect(described_class).not_to be_valid('bitcoincash:wrong', :bch)
         expect(described_class).not_to be_valid('bitcoincash:123', :bch)
 
-        expect(described_class).not_to be_valid('bitcoincash:qqkv9wr69ry2p9l53lxp635va4h86wv435995w8p2h', :bch, :p2pkhtest)
-        expect(described_class).not_to be_valid('bitcoincash:pqdg9uq52wzhf228hweext9j2jdjgdpj9qt7xxfngd', :bitcoincash, :p2pkhtest)
-        expect(described_class).not_to be_valid('bchtest:qpqtmmfpw79thzq5z7s0spcd87uhn6d34uqqem83hf', :Bitcoincash, :p2sh)
+        expect(described_class).not_to be_valid('bitcoincash:qqkv9wr69ry2p9l53lxp635va4h86wv435995w8p2h', :bch,
+                                                :p2pkhtest)
+        expect(described_class).not_to be_valid('bitcoincash:pqdg9uq52wzhf228hweext9j2jdjgdpj9qt7xxfngd', :bitcoincash,
+                                                :p2pkhtest)
+        expect(described_class).not_to be_valid('bchtest:qpqtmmfpw79thzq5z7s0spcd87uhn6d34uqqem83hf', :Bitcoincash,
+                                                :p2sh)
         expect(described_class).not_to be_valid('bchtest:pp8f7ww2g6y07ypp9r4yendrgyznysc9kqxh6acwu3', :BCH, :p2sh)
       end
     end
 
-    context 'Ethereum' do
+    describe 'Ethereum' do
       it 'validates addresses' do
         expect(described_class).to be_valid('0xE37c0D48d68da5c5b14E5c1a9f1CFE802776D9FF', 'ethereum')
         expect(described_class).to be_valid('0xa00354276d2fC74ee91e37D085d35748613f4748', :ethereum)
@@ -136,7 +153,7 @@ RSpec.describe(AdequateCryptoAddress) do
       end
     end
 
-    context 'Ripple' do
+    describe 'Ripple' do
       it 'validates addresses' do
         expect(described_class).to be_valid('rPMLwSwyyULN2acf5JKB1nj8F8Eu8pVMV8', :ripple)
         expect(described_class).to be_valid('rG1QQv2nh2gr7RCZ1P8YYcBUKCCN633jCn', :ripple)
@@ -153,7 +170,7 @@ RSpec.describe(AdequateCryptoAddress) do
       end
     end
 
-    context 'Dash' do
+    describe 'Dash' do
       it 'validates addresses' do
         expect(described_class).to be_valid('Xx4dYKgz3Zcv6kheaqog3fynaKWjbahb6b', :dash)
         expect(described_class).to be_valid('XcY4WJ6Z2Q8w7vcYER1JypC8s2oa3SQ1b1', 'DASH')
@@ -169,7 +186,7 @@ RSpec.describe(AdequateCryptoAddress) do
       end
     end
 
-    context 'Zcash' do
+    describe 'Zcash' do
       it 'validates addresses' do
         expect(described_class).to be_valid('t1U9yhDa5XEjgfnTgZoKddeSiEN1aoLkQxq', :zec)
         expect(described_class).to be_valid('t3Vz22vK5z2LcKEdg16Yv4FFneEL1zg9ojd', 'zcash', :prod)
@@ -184,7 +201,7 @@ RSpec.describe(AdequateCryptoAddress) do
       end
     end
 
-    context 'Litecoin' do
+    describe 'Litecoin' do
       it 'validates addresses' do
         expect(described_class).to be_valid('LVg2kJoFNg45Nbpy53h7Fe1wKyeXVRhMH9', :ltc)
         expect(described_class).to be_valid('LVg2kJoFNg45Nbpy53h7Fe1wKyeXVRhMH9', 'ltc', :prod)
@@ -196,7 +213,8 @@ RSpec.describe(AdequateCryptoAddress) do
         expect(described_class).to be_valid('2MxKEf2su6FGAUfCEAHreGFQvEYrfYNHvL7', 'LTC', :test)
         expect(described_class).to be_valid('QW2SvwjaJU8LD6GSmtm1PHnBG2xPuxwZFy', 'LTC', :test)
         expect(described_class).to be_valid('QjpzxpbLp5pCGsCczMbfh1uhC3P89QZavY', 'LTC', :test)
-        expect(described_class).to be_valid('tltc1pxdvk48nchp45mcg8pcht5ss8ladtxnl7mkr96lrw93q79g407ufqmelwuu', 'LTC', :test)
+        expect(described_class).to be_valid('tltc1pxdvk48nchp45mcg8pcht5ss8ladtxnl7mkr96lrw93q79g407ufqmelwuu', 'LTC',
+                                            :test)
         expect(described_class).to be_valid('tltc1pxdvk48nchp45mcg8pcht5ss8ladtxnl7mkr96lrw93q79g407ufqmelwuu', 'LTC')
       end
 
@@ -205,16 +223,27 @@ RSpec.describe(AdequateCryptoAddress) do
         expect(described_class).not_to be_valid('t1Y9yhDa5XEjgfnTgZoKddeSiEN1aoLkQxq', :zcash)
         expect(described_class).not_to be_valid('t3Yz22vK5z2LcKEdg16Yv4FFneEL1zg9ojd', :ZEC)
         expect(described_class).not_to be_valid('t2YNzUUx8mWBCRYPRezvA363EYXyEpHokyi', :zcash, :test)
-        expect(described_class).not_to be_valid('tltc1pxdvk48nchp45mcg8pcht5ss8ladtxnl7mkr96lrw93q79g407ufqmelwuu', 'LTC', :prod)
-        expect(described_class).not_to be_valid('tltc1Pxdvk48nchp45mcg8pcht5ss8ladtxnl7mkr96lrw93q79g407ufqmelwuu', 'LTC')
+        expect(described_class).not_to be_valid('tltc1pxdvk48nchp45mcg8pcht5ss8ladtxnl7mkr96lrw93q79g407ufqmelwuu',
+                                                'LTC', :prod)
+        expect(described_class).not_to be_valid('tltc1Pxdvk48nchp45mcg8pcht5ss8ladtxnl7mkr96lrw93q79g407ufqmelwuu',
+                                                'LTC')
       end
     end
 
-    context 'Cardano' do
+    describe 'Cardano' do
       it 'validates addresses' do
-        expect(described_class).to be_valid('addr1z84q0denmyep98ph3tmzwsmw0j7zau9ljmsqx6a4rvaau66j2c79gy9l76sdg0xwhd7r0c0kna0tycz4y5s6mlenh8pq777e2a', :ada)
-        expect(described_class).to be_valid('addr1q9dhugez3ka82k2kgh7r2lg0j7aztr8uell46kydfwu3vk6n8w2cdu8mn2ha278q6q25a9rc6gmpfeekavuargcd32vsvxhl7e', 'ADA', :prod)
-        expect(described_class).to be_valid('addr1q8gg2r3vf9zggn48g7m8vx62rwf6warcs4k7ej8mdzmqmesj30jz7psduyk6n4n2qrud2xlv9fgj53n6ds3t8cs4fvzs05yzmz', 'Cardano')
+        expect(described_class).to be_valid(
+          'addr1z84q0denmyep98ph3tmzwsmw0j7zau9ljmsqx6a4rvaau66j2c79gy9l76sdg0xwhd7r0c0kna0tycz4y5s6mlenh8pq777e2a',
+          :ada
+        )
+        expect(described_class).to be_valid(
+          'addr1q9dhugez3ka82k2kgh7r2lg0j7aztr8uell46kydfwu3vk6n8w2cdu8mn2ha278q6q25a9rc6gmpfeekavuargcd32vsvxhl7e',
+          'ADA', :prod
+        )
+        expect(described_class).to be_valid(
+          'addr1q8gg2r3vf9zggn48g7m8vx62rwf6warcs4k7ej8mdzmqmesj30jz7psduyk6n4n2qrud2xlv9fgj53n6ds3t8cs4fvzs05yzmz',
+          'Cardano'
+        )
         expect(described_class).to be_valid('addr1wx6hd6gradhx8m7l2sn5w8pp2vuh22glwq65w07wjfqlf7qlh3dvr', 'Cardano')
         expect(described_class).to be_valid(
           'addr1gx2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer5pnz75xxcrzqf96k',
@@ -226,9 +255,16 @@ RSpec.describe(AdequateCryptoAddress) do
           'ADA'
         )
 
-        expect(described_class).to be_valid('addr_test1qqx3d3kxe37k76wrpeck338g6zk47hjfz6t04t7n8m7t8yjkvjhxw6ysgfejsde09fmtznsnwzaphdl774qh49nu7vcsgq5wqa', 'ADA', :test)
-        expect(described_class).to be_valid('addr_test1qp4q5p7zj32vcd07ncywvuh0ca99p2w4fnv547ua5utmsuv0pten2usz500r333ck0v0amvvqdgxyrrh4t6swagsl4zsp7d6r8', 'Cardano', :test)
-        expect(described_class).to be_valid('addr_test1vr842a8uhw3pd3m4dqqgkm7p8fhy75grudpr8jht58yygzqtfcv4g', 'Cardano', :test)
+        expect(described_class).to be_valid(
+          'addr_test1qqx3d3kxe37k76wrpeck338g6zk47hjfz6t04t7n8m7t8yjkvjhxw6ysgfejsde09fmtznsnwzaphdl774qh49nu7vcsgq5wqa',
+          'ADA', :test
+        )
+        expect(described_class).to be_valid(
+          'addr_test1qp4q5p7zj32vcd07ncywvuh0ca99p2w4fnv547ua5utmsuv0pten2usz500r333ck0v0amvvqdgxyrrh4t6swagsl4zsp7d6r8',
+          'Cardano', :test
+        )
+        expect(described_class).to be_valid('addr_test1vr842a8uhw3pd3m4dqqgkm7p8fhy75grudpr8jht58yygzqtfcv4g',
+                                            'Cardano', :test)
         expect(described_class).to be_valid(
           'addr_test1gz2fxv2umyhttkxyxp8x0dlpdt3k6cwng5pxj3jhsydzer5pnz75xxcrdw5vky',
           'Cardano',
@@ -238,10 +274,19 @@ RSpec.describe(AdequateCryptoAddress) do
 
       it 'validates wrong addresses' do
         expect(described_class).not_to be_valid('wrong', :ada)
-        expect(described_class).not_to be_valid('addr1z84q0denmyep98ph3tmewsmw0j7zau9ljmsqx6a4rvaau66j2c79gy9l76sdg0xwhd7r0c0kna0tycz4y5s6mlenh8pq777e2a', :ada)
-        expect(described_class).not_to be_valid('addr1q9dhugez3ka82k2kgh7r4lg0j7aztr8uell46kydfwu3vk6n8w2cdu8mn2ha278q6q25a9rc6gmpfeekavuargcd32vsvxhl7e', 'ADA', :prod)
+        expect(described_class).not_to be_valid(
+          'addr1z84q0denmyep98ph3tmewsmw0j7zau9ljmsqx6a4rvaau66j2c79gy9l76sdg0xwhd7r0c0kna0tycz4y5s6mlenh8pq777e2a',
+          :ada
+        )
+        expect(described_class).not_to be_valid(
+          'addr1q9dhugez3ka82k2kgh7r4lg0j7aztr8uell46kydfwu3vk6n8w2cdu8mn2ha278q6q25a9rc6gmpfeekavuargcd32vsvxhl7e',
+          'ADA', :prod
+        )
         expect(described_class).not_to be_valid('addr1v9jxv7k0z9m3k4f0k8h5l6h9m7q3x6w8v0j7q2x0r8z5h0k9d2', 'Cardano')
-        expect(described_class).not_to be_valid('addr_test1qp4q5p7zj32vcd07nnywvuh0ca99p2w4fnv547ua5utmsuv0pten2usz500r333ck0v0amvvqdgxyrrh4t6swagsl4zsp7d6r8', 'Cardano', :test)
+        expect(described_class).not_to be_valid(
+          'addr_test1qp4q5p7zj32vcd07nnywvuh0ca99p2w4fnv547ua5utmsuv0pten2usz500r333ck0v0amvvqdgxyrrh4t6swagsl4zsp7d6r8',
+          'Cardano', :test
+        )
         # Cardano uses Bech32, not Bech32m.
         expect(described_class).not_to be_valid(
           'addr1wx6hd6gradhx8m7l2sn5w8pp2vuh22glwq65w07wjfqlf7q2tppfp',
@@ -250,7 +295,7 @@ RSpec.describe(AdequateCryptoAddress) do
       end
     end
 
-    context 'Dogecoin' do
+    describe 'Dogecoin' do
       it 'validates addresses' do
         expect(described_class).to be_valid('DKRgRWjzZA6VPZGdTFgk1or8qiz2xZuhTM', :doge)
         expect(described_class).to be_valid('A1hZnfuStUP9U6Uzg6CsV3n2c5As4UQ3c5', 'doge', :prod)
@@ -267,7 +312,7 @@ RSpec.describe(AdequateCryptoAddress) do
       end
     end
 
-    context 'Solana' do
+    describe 'Solana' do
       it 'validates addresses' do
         expect(described_class).to be_valid('7xKXtg2CW87d97TXJSDpbD5xJQ3x6QhN5cQj7h4Fq3V', :sol)
         expect(described_class).to be_valid('7xKXtg2CW87d97TXJSDpbD5xJQ3x6QhN5cQj7h4Fq3V', 'SOL')
@@ -284,13 +329,15 @@ RSpec.describe(AdequateCryptoAddress) do
       end
     end
 
-    context 'Stellar' do
+    describe 'Stellar' do
       it 'validates addresses' do
         expect(described_class).to be_valid('GD327MCKE45GYHWG22L7EJFULEUDMNOWGWW5WFBE5QD3CYLCI44XITXN', :xlm)
         expect(described_class).to be_valid('GAQCCRRVYDTBES66MW5GS6ZCVTLLQP4GLV35WI7TWQQYTMWX7MVHDDPY', 'XLM')
         expect(described_class).to be_valid('GBPGJK2NR6KLWRJOO6FPOQMFNMLLGNHGZCY6ER5MRBTLZN246DFJJ2R2', 'Stellar')
-        expect(described_class).to be_valid('MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAABUTGI4', 'Stellar')
-        expect(described_class).to be_valid('MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAACJUQ', 'Stellar')
+        expect(described_class).to be_valid('MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAABUTGI4',
+                                            'Stellar')
+        expect(described_class).to be_valid('MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAAAAAAAAAAAACJUQ',
+                                            'Stellar')
       end
 
       it 'validates wrong addresses' do
@@ -298,11 +345,13 @@ RSpec.describe(AdequateCryptoAddress) do
         expect(described_class).not_to be_valid('GD327MCKE45GYBWG22L7EJFULEUDMNOWGWW5WFBE5QD3CYLCI44XITXN', :xlm)
         expect(described_class).not_to be_valid('GAQCCRRVYDTBES36MW5GS6ZCVTLLQP4GLV35WI7TWQQYTMWX7MVHDDPY', 'XLM')
         expect(described_class).not_to be_valid('GBPGJK2NR6KLWRJOO6FPFQMFNMLLGNHGZCY6ER5MRBTLZN246DFJJ2R2', 'Stellar')
-        expect(described_class).not_to be_valid('MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAABAAAAAAAAACJUQ', 'Stellar')
+        expect(described_class).not_to be_valid(
+          'MA7QYNF7SOWQ3GLR2BGMZEHXAVIRZA4KVWLTJJFC7MGXUA74P7UJUAABAAAAAAAAACJUQ', 'Stellar'
+        )
       end
     end
 
-    context 'Toncoin' do
+    describe 'Toncoin' do
       it 'validates addresses' do
         expect(described_class).to be_valid('UQCScs4HjjwnlIFKIq_juiuLLLnjJKTjQyfcADjYNvdYwn-l', :TON)
       end
@@ -312,18 +361,47 @@ RSpec.describe(AdequateCryptoAddress) do
       end
     end
 
-    context 'Monero' do
+    describe 'Monero' do
       it 'validates addresses' do
-        expect(described_class).to be_valid('4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57', :XMR)
-        expect(described_class).to be_valid('4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57', :monero)
-        expect(described_class).to be_valid('4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57', :Xmr)
-        expect(described_class).to be_valid('4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57', :xmr)
-        expect(described_class).to be_valid('4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi', :monero)
-        expect(described_class).to be_valid('4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi', :Xmr)
-        expect(described_class).to be_valid('4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi', :Xmr)
-        expect(described_class).to be_valid('4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi', :xmr)
-        expect(described_class).to be_valid('8BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57', :xmr)
-        expect(described_class).to be_valid('8TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi', :monero)
+        expect(described_class).to be_valid(
+          '4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57',
+          :XMR
+        )
+        expect(described_class).to be_valid(
+          '4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57',
+          :monero
+        )
+        expect(described_class).to be_valid(
+          '4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57',
+          :Xmr
+        )
+        expect(described_class).to be_valid(
+          '4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57',
+          :xmr
+        )
+        expect(described_class).to be_valid(
+          '4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi',
+          :monero
+        )
+        expect(described_class).to be_valid(
+          '4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi',
+          :Xmr
+        )
+        expect(described_class).to be_valid(
+          '4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi',
+          :Xmr
+        )
+        expect(described_class).to be_valid(
+          '4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi',
+          :xmr
+        )
+        expect(described_class).to be_valid(
+          '8BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57', :xmr
+        )
+        expect(described_class).to be_valid(
+          '8TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi',
+          :monero
+        )
       end
 
       it 'validates wrong addresses' do
@@ -337,7 +415,7 @@ RSpec.describe(AdequateCryptoAddress) do
 
   describe '.address' do
     it 'returns insance' do
-      expect(described_class.address('D1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb', 'eth')).to be_kind_of(AdequateCryptoAddress::Eth)
+      expect(described_class.address('D1220A0cf47c7B9Be7A2E6BA89F429762e7b9aDb', 'eth')).to be_a(AdequateCryptoAddress::Eth)
     end
 
     it 'raises UnknownCurrency with unknown currency' do

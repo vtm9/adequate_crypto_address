@@ -15,124 +15,33 @@ module AdequateCryptoAddress
         -1, 29, -1, 24, 13, 25, 9, 8, 23, -1, 18, 22, 31, 27, 19, -1,
         1,  0,  3, 16, 11, 28, 12, 14, 6, 4, 2, -1, -1, -1, -1, -1
       ].freeze
+      GENERATORS = [0x3b6a57b2, 0x26508e6d, 0x1ea119fa, 0x3d4233dd, 0x2a1462b3].freeze
 
       class << self
         def polymod_step(pre)
           b = pre >> 25
-          ((pre & 0x1FFFFFF) << 5) ^ \
-            (-((b >> 0) & 1) & 0x3b6a57b2) ^ \
-            (-((b >> 1) & 1) & 0x26508e6d) ^ \
-            (-((b >> 2) & 1) & 0x1ea119fa) ^ \
-            (-((b >> 3) & 1) & 0x3d4233dd) ^ \
-            (-((b >> 4) & 1) & 0x2a1462b3)
+          GENERATORS.each_with_index.reduce((pre & 0x1FFFFFF) << 5) do |checksum, (generator, index)|
+            checksum ^ (-((b >> index) & 1) & generator)
+          end
         end
 
-        # def encode(hrp, data)
-        #   buf = []
-        #   chk = 1
-
-        #   hrp.unpack('C*').each do |ch|
-        #     return nil if ch < 33 || ch > 126
-        #     return nil if ch >= 'A'.ord && ch <= 'Z'.ord
-
-        #     chk = polymod_step(chk) ^ (ch >> 5)
-        #   end
-
-        #   return nil if (hrp.bytesize + 7 + data.size) > 90
-
-        #   chk = polymod_step(chk)
-        #   hrp.unpack('C*').each do |ch|
-        #     chk = polymod_step(chk) ^ (ch & 0x1f)
-        #     buf << ch
-        #   end
-
-        #   buf << '1'.ord
-
-        #   data.each do |i|
-        #     return nil if (i >> 5) != 0
-
-        #     chk = polymod_step(chk) ^ i
-        #     buf << CHARSET[i]
-        #   end
-
-        #   6.times do
-        #     chk = polymod_step(chk)
-        #   end
-
-        #   chk ^= 1
-
-        #   6.times do |i|
-        #     buf << CHARSET[(chk >> ((5 - i) * 5)) & 0x1f]
-        #   end
-
-        #   buf.pack('C*')
-        # end
-
-        # rubocop:disable Metrics/PerceivedComplexity
         def decode(input, ignore_length: false, include_encoding: false)
-          chk = 1
-          input_len = input.bytesize
-          have_lower = false
-          have_upper = false
+          hrp_string, data_string = split_input(input, ignore_length: ignore_length)
+          return nil unless hrp_string
 
-          return nil if input_len < 8
-          return nil if input_len > 90 && !ignore_length
+          hrp, checksum, casing = decode_hrp(hrp_string)
+          return nil unless hrp
 
-          data_len = 0
-          data_len += 1 while data_len < input_len && input[(input_len - 1) - data_len] != '1'
+          data, checksum, casing = decode_data(data_string, checksum, casing)
+          return nil unless data
+          return nil if casing.values.all?
 
-          hrp_len = input_len - (1 + data_len)
-          return nil if hrp_len < 1 || data_len < 6
-
-          hrp = []
-          hrp_len.times do |i|
-            ch = input[i].ord
-            return nil if ch < 33 || ch > 126
-
-            if ch >= 'a'.ord && ch <= 'z'.ord
-              have_lower = true
-            elsif ch >= 'A'.ord && ch <= 'Z'.ord
-              have_upper = true
-              ch = (ch - 'A'.ord) + 'a'.ord
-            end
-
-            hrp << ch
-            chk = polymod_step(chk) ^ (ch >> 5)
-          end
-
-          chk = polymod_step(chk)
-
-          hrp_len.times do |i|
-            chk = polymod_step(chk) ^ (input[i].ord & 0x1f)
-          end
-
-          data = []
-          i = hrp_len + 1
-          while i < input_len
-            ch = input[i].ord
-            v = (ch & 0x80) != 0 ? -1 : CHARSET_REV[ch]
-
-            have_lower = true if ch >= 'a'.ord && ch <= 'z'.ord
-            have_upper = true if ch >= 'A'.ord && ch <= 'Z'.ord
-            return nil if v == -1
-
-            chk = polymod_step(chk) ^ v
-            data << v if (i + 6) < input_len
-            i += 1
-          end
-
-          return nil if have_lower && have_upper
-
-          encoding = case chk
-                     when 1 then :bech32
-                     when 0x2bc830a3 then :bech32m
-                     end
+          encoding = checksum_encoding(checksum)
           return nil unless encoding
 
           decoded = [hrp.pack('C*'), data]
           include_encoding ? decoded << encoding : decoded
         end
-        # rubocop:enable Metrics/PerceivedComplexity
 
         # Utility for converting bytes of data between bases. These is used for
         # BIP 173 address encoding/decoding to convert between sequences of bytes
@@ -147,27 +56,142 @@ module AdequateCryptoAddress
         #
         # See https://github.com/bitcoin/bitcoin/blob/595a7bab23bc21049526229054ea1fff1a29c0bf/src/utilstrencodings.h#L154
         def convert_bits(chunks, from_bits:, to_bits:, pad:)
-          output_mask = (1 << to_bits) - 1
-          buffer_mask = (1 << (from_bits + to_bits - 1)) - 1
+          return nil unless valid_chunks?(chunks, from_bits)
 
+          conversion = {
+            from_bits: from_bits,
+            to_bits: to_bits,
+            output_mask: (1 << to_bits) - 1,
+            buffer_mask: (1 << (from_bits + to_bits - 1)) - 1
+          }
           buffer = 0
           bits = 0
-
           output = []
+
           chunks.each do |chunk|
-            buffer = ((buffer << from_bits) | chunk) & buffer_mask
-            bits += from_bits
-            while bits >= to_bits
-              bits -= to_bits
-              output << ((buffer >> bits) & output_mask)
-            end
+            buffer, bits, converted = convert_chunk(chunk, buffer, bits, conversion)
+            output.concat(converted)
           end
 
-          output << ((buffer << (to_bits - bits)) & output_mask) if pad && bits > 0
+          remainder = conversion_remainder(buffer, bits, conversion, pad)
+          return nil if remainder == :invalid
 
-          return nil if !pad && (bits >= from_bits || ((buffer << (to_bits - bits)) & output_mask) != 0)
+          output << remainder if remainder
 
           output
+        end
+
+        private
+
+        def split_input(input, ignore_length:)
+          input_length = input.bytesize
+          return if input_length < 8
+          return if input_length > 90 && !ignore_length
+
+          separator = input.rindex('1')
+          return unless separator&.positive?
+          return if (input_length - separator - 1) < 6
+
+          [input[0...separator], input[(separator + 1)..]]
+        end
+
+        def decode_hrp(hrp_string)
+          hrp, casing = normalize_hrp(hrp_string)
+          return unless hrp
+
+          [hrp, hrp_checksum(hrp), casing]
+        end
+
+        def normalize_hrp(hrp_string)
+          hrp = []
+          casing = { lower: false, upper: false }
+
+          index = 0
+          while index < hrp_string.bytesize
+            character = hrp_string.getbyte(index)
+            character, character_case = normalize_hrp_character(character)
+            return unless character
+
+            casing[character_case] = true if character_case
+            hrp << character
+            index += 1
+          end
+
+          [hrp, casing]
+        end
+
+        def hrp_checksum(hrp)
+          checksum = hrp.reduce(1) do |value, character|
+            polymod_step(value) ^ (character >> 5)
+          end
+          checksum = polymod_step(checksum)
+          hrp.each { |character| checksum = polymod_step(checksum) ^ (character & 0x1f) }
+          checksum
+        end
+
+        def decode_data(data_string, checksum, casing)
+          data = []
+          payload_length = data_string.bytesize - 6
+
+          index = 0
+          while index < data_string.bytesize
+            character = data_string.getbyte(index)
+            value = character.nobits?(0x80) ? CHARSET_REV[character] : -1
+            return if value == -1
+
+            character_case = letter_case(character)
+            casing[character_case] = true if character_case
+            checksum = polymod_step(checksum) ^ value
+            data << value if index < payload_length
+            index += 1
+          end
+
+          [data, checksum, casing]
+        end
+
+        def normalize_hrp_character(character)
+          return unless character.between?(33, 126)
+          return [character, :lower] if character.between?('a'.ord, 'z'.ord)
+          return [(character - 'A'.ord) + 'a'.ord, :upper] if character.between?('A'.ord, 'Z'.ord)
+
+          [character, nil]
+        end
+
+        def letter_case(character)
+          return :lower if character.between?('a'.ord, 'z'.ord)
+
+          :upper if character.between?('A'.ord, 'Z'.ord)
+        end
+
+        def checksum_encoding(checksum)
+          return :bech32 if checksum == 1
+
+          :bech32m if checksum == 0x2bc830a3
+        end
+
+        def valid_chunks?(chunks, from_bits)
+          chunks.all? { |chunk| chunk.between?(0, (1 << from_bits) - 1) }
+        end
+
+        def convert_chunk(chunk, buffer, bits, conversion)
+          buffer = ((buffer << conversion[:from_bits]) | chunk) & conversion[:buffer_mask]
+          bits += conversion[:from_bits]
+          output = []
+
+          while bits >= conversion[:to_bits]
+            bits -= conversion[:to_bits]
+            output << ((buffer >> bits) & conversion[:output_mask])
+          end
+
+          [buffer, bits, output]
+        end
+
+        def conversion_remainder(buffer, bits, conversion, pad)
+          return (buffer << (conversion[:to_bits] - bits)) & conversion[:output_mask] if pad && bits.positive?
+          return if pad
+          return :invalid if bits >= conversion[:from_bits]
+
+          :invalid if (buffer << (conversion[:to_bits] - bits)).anybits?(conversion[:output_mask])
         end
       end
     end
