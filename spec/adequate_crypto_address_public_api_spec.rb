@@ -19,7 +19,11 @@ RSpec.describe(AdequateCryptoAddress, :aggregate_failures) do
       xlm: ['GD327MCKE45GYHWG22L7EJFULEUDMNOWGWW5WFBE5QD3CYLCI44XITXN', :account],
       ada: ['addr1wx6hd6gradhx8m7l2sn5w8pp2vuh22glwq65w07wjfqlf7qlh3dvr', :prod],
       ton: ['UQCScs4HjjwnlIFKIq_juiuLLLnjJKTjQyfcADjYNvdYwn-l', :ton_mainnet],
-      xmr: [monero, :standard]
+      xmr: [monero, :standard],
+      trx: ['TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t', :prod],
+      xtz: ['tz1burnburnburnburnburnburnburjAYjjX', :implicit],
+      atom: ['cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27', :prod],
+      bsc: ['0xE37c0D48d68da5c5b14E5c1a9f1CFE802776D9FF', :bsc]
     }
   end
 
@@ -64,7 +68,7 @@ RSpec.describe(AdequateCryptoAddress, :aggregate_failures) do
 
     it 'rejects oversized input quickly without decoding' do
       oversized = '1' * 5_000
-      [:btc, :bch, :xrp, :dash, :zec, :ltc, :doge, :sol, :xlm, :ada, :xmr].each do |currency|
+      [:btc, :bch, :xrp, :dash, :zec, :ltc, :doge, :sol, :xlm, :ada, :xmr, :trx, :xtz, :atom].each do |currency|
         expect(described_class).not_to be_valid(oversized, currency)
       end
     end

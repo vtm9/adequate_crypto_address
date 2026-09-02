@@ -131,6 +131,10 @@ AdequateCryptoAddress.address_type('not a real address', :btc)                  
 * Stellar/XLM, `'stellar'` or `'XLM'` types: `:account :muxed`
 * Toncoin/TON, `'TON'` or `'Toncoin'` types: `:ton_mainnet :ton_testnet`
 * Monero/XMR, `'monero'` or `'XMR'` types: `:standard :integrated :subaddress` (`.network` reports `:mainnet`/`:testnet`/`:stagenet`)
+* TRON/TRX, `'tron'` or `'TRX'` type: `:prod`
+* Tezos/XTZ, `'tezos'` or `'XTZ'` types: `:implicit :originated`
+* Cosmos/ATOM, `'cosmos'` or `'ATOM'` type: `:prod`
+* BNB Smart Chain/BSC, `'bsc'` or `'binancesmartchain'` type: `:bsc` (Ethereum-format address)
 
 ### Format coverage
 

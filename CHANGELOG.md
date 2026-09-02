@@ -5,6 +5,22 @@ All notable changes to this project are documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.3.0] - 2026-09-02
+
+### Added
+
+- **TRON (TRX)** validation — Base58Check with the `0x41` version byte and
+  double-SHA256 checksum. Currency names: `trx`, `tron`. Type: `:prod`.
+- **Tezos (XTZ)** validation — Base58Check with `tz1`/`tz2`/`tz3` implicit and
+  `KT1` originated (contract) prefixes. Currency names: `xtz`, `tezos`.
+  Types: `:implicit`, `:originated`.
+- **Cosmos (ATOM)** validation — Bech32 with the `cosmos` human-readable part and
+  a 20-byte payload. Currency names: `atom`, `cosmos`. Type: `:prod`.
+- **BNB Smart Chain (BSC)** validation — Ethereum-format addresses with the
+  EIP-55 checksum. Currency names: `bsc`, `binancesmartchain`. Type: `:bsc`.
+
+[0.3.0]: https://github.com/vtm9/adequate_crypto_address/releases/tag/v0.3.0
+
 ## [0.2.0] - 2026-09-02
 
 This release hardens the validators against malformed input found in the

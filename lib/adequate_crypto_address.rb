@@ -19,6 +19,9 @@ require 'adequate_crypto_address/doge'
 require 'adequate_crypto_address/sol'
 require 'adequate_crypto_address/xlm'
 require 'adequate_crypto_address/ada'
+require 'adequate_crypto_address/trx'
+require 'adequate_crypto_address/xtz'
+require 'adequate_crypto_address/atom'
 
 module AdequateCryptoAddress
   class UnknownCurrency < StandardError; end

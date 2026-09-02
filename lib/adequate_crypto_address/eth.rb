@@ -81,4 +81,13 @@ module AdequateCryptoAddress
     end
   end
   Ethereum = Eth
+
+  # BNB Smart Chain uses the same address format and EIP-55 checksum as Ethereum.
+  class Bsc < Eth
+    def address_type
+      valid? ? :bsc : nil
+    end
+  end
+
+  Binancesmartchain = Bsc
 end

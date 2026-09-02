@@ -421,6 +421,70 @@ RSpec.describe(AdequateCryptoAddress, :aggregate_failures) do
         expect(described_class).not_to be_valid("#{standard[0..-2]}Z", :xmr)
       end
     end
+
+    describe 'Tron' do
+      it 'validates addresses' do
+        expect(described_class).to be_valid('TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t', :trx)
+        expect(described_class).to be_valid('TLyqzVGLV1srkB7dToTAEqgDSfPtXRJZYH', 'TRX')
+        expect(described_class).to be_valid('TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t', 'Tron', :prod)
+        expect(described_class.address_type('TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6t', :trx)).to eq(:prod)
+      end
+
+      it 'validates wrong addresses' do
+        expect(described_class).not_to be_valid('wrong', :trx)
+        # Single-character checksum mutation.
+        expect(described_class).not_to be_valid('TR7NHqjeKQxGTCi8q8ZY4pL8otSzgjLj6u', :trx)
+        # Ethereum-style address is not a TRON address.
+        expect(described_class).not_to be_valid('0xde709f2102306220921060314715629080e2fb77', :trx)
+      end
+    end
+
+    describe 'Tezos' do
+      it 'validates addresses' do
+        expect(described_class).to be_valid('tz1burnburnburnburnburnburnburjAYjjX', :xtz)
+        expect(described_class).to be_valid('tz1burnburnburnburnburnburnburjAYjjX', 'Tezos', :implicit)
+        expect(described_class).to be_valid('KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn', :xtz, :originated)
+        expect(described_class.address_type('KT1PWx2mnDueood7fEmfbBDKx1D9BAnnXitn', :tezos)).to eq(:originated)
+      end
+
+      it 'validates wrong addresses' do
+        expect(described_class).not_to be_valid('wrong', :xtz)
+        # Single-character checksum mutation.
+        expect(described_class).not_to be_valid('tz1burnburnburnburnburnburnburjAYjjY', :xtz)
+        # Implicit address queried as an originated (KT1) type.
+        expect(described_class).not_to be_valid('tz1burnburnburnburnburnburnburjAYjjX', :xtz, :originated)
+      end
+    end
+
+    describe 'Cosmos' do
+      it 'validates addresses' do
+        expect(described_class).to be_valid('cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27', :atom)
+        expect(described_class).to be_valid('cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27', 'Cosmos', :prod)
+        expect(described_class.address_type('cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d27', :atom)).to eq(:prod)
+      end
+
+      it 'validates wrong addresses' do
+        expect(described_class).not_to be_valid('wrong', :atom)
+        # Single-character checksum mutation.
+        expect(described_class).not_to be_valid('cosmos1depk54cuajgkzea6zpgkq36tnjwdzv4afc3d28', :atom)
+        # A valid Bech32 address with a non-cosmos human-readable part.
+        expect(described_class).not_to be_valid('bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq', :atom)
+      end
+    end
+
+    describe 'BinanceSmartChain' do
+      it 'validates addresses' do
+        expect(described_class).to be_valid('0xE37c0D48d68da5c5b14E5c1a9f1CFE802776D9FF', :bsc)
+        expect(described_class).to be_valid('0xde709f2102306220921060314715629080e2fb77', 'binancesmartchain')
+        expect(described_class.address_type('0xE37c0D48d68da5c5b14E5c1a9f1CFE802776D9FF', :bsc)).to eq(:bsc)
+      end
+
+      it 'validates wrong addresses' do
+        expect(described_class).not_to be_valid('wrong', :bsc)
+        # Invalid EIP-55 checksum.
+        expect(described_class).not_to be_valid('0xD1110A0cf47c7B9Be7A2E6BA89F429762e7b9aDb', :bsc)
+      end
+    end
   end
 
   describe '.address' do
