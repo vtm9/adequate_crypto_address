@@ -6,13 +6,14 @@ module AdequateCryptoAddress
     EXPECTED_LENGTH = 50
     ADDRESS_TYPES = {}.freeze
     ALPHABET_TYPE = :bitcoin
+    MAX_LENGTH = 100
 
     attr_reader :address, :type
     alias raw_address address
 
     def initialize(address)
       @address = address
-      @type = address_type
+      @type = detect_type
     end
 
     def valid?(validated_type = nil)
@@ -23,11 +24,22 @@ module AdequateCryptoAddress
       end
     end
 
+    # Public contract: the detected network type Symbol, or nil when invalid.
+    def address_type
+      type
+    end
+
     private
 
     attr_reader :decoded
 
-    def address_type
+    def too_long?
+      address.to_s.length > self.class::MAX_LENGTH
+    end
+
+    def detect_type
+      return nil if too_long?
+
       @decoded = safely_decode_base58
       return unless valid_decoded_address?
 

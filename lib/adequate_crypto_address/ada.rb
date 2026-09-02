@@ -8,10 +8,13 @@ module AdequateCryptoAddress
     POINTER_ADDRESS_TYPES = [4, 5].freeze
     ENTERPRISE_ADDRESS_TYPES = [6, 7].freeze
     VALID_ADDRESS_TYPES = (BASE_ADDRESS_TYPES + POINTER_ADDRESS_TYPES + ENTERPRISE_ADDRESS_TYPES).freeze
+    # Shelley payment addresses cap at ~103 chars (base); allow headroom while
+    # still bounding work, since Bech32 decoding runs with ignore_length: true.
+    MAX_LENGTH = 130
 
     def initialize(address)
       @address = address
-      @type = address_type
+      @type = detect_type
     end
 
     def valid?(type = nil)
@@ -22,9 +25,14 @@ module AdequateCryptoAddress
       end
     end
 
+    # :prod or :test when valid, otherwise nil.
+    def address_type
+      type
+    end
+
     private
 
-    def address_type
+    def detect_type
       decoded = safely_decode_address
       return nil unless decoded
 
@@ -43,6 +51,8 @@ module AdequateCryptoAddress
     end
 
     def safely_decode_address
+      return nil if address.to_s.length > MAX_LENGTH
+
       decode_address
     rescue StandardError
       nil

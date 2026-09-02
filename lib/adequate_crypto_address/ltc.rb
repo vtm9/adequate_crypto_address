@@ -6,7 +6,9 @@ module AdequateCryptoAddress
 
     private
 
-    def address_type
+    def detect_type
+      return nil if too_long?
+
       segwit_address_type || super
     end
 

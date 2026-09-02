@@ -29,32 +29,132 @@ Or install it yourself as:
 gem install adequate_crypto_address
 ```
 
+## Upgrading from 0.1.x to 0.2.0
+
+0.2.0 hardens the validators against malformed input and makes the
+`address_type` API consistent. Most callers of `.valid?` need no changes, but a
+few behaviors changed. See the [CHANGELOG](CHANGELOG.md) for the full list.
+
+### Stricter validation (addresses that used to pass may now fail)
+
+Some malformed addresses that earlier versions incorrectly accepted are now
+rejected. If your app stored or allow-listed such values, re-validate them:
+
+- **BCH** legacy addresses with a bad checksum/length, CashAddr addresses with a
+  non-`bitcoincash`/`bchtest`/`bchreg` prefix (e.g. `evil:...`), or a payload
+  shorter than the version byte declares.
+- **TON** any 48-character string (e.g. `"A" * 48`) — a valid tag, workchain,
+  and CRC16 checksum are now required.
+- **Monero** anything that is not a checksum-valid Base58 address (e.g.
+  `"4" + "!" * 94`).
+
+If you rely on a currency name, note that unknown names still raise
+`AdequateCryptoAddress::UnknownCurrency`, but a `nil` or malformed **address**
+now consistently returns `false` from `.valid?` instead of raising.
+
+### `address_type` is now public and consistent
+
+`AdequateCryptoAddress.address_type(address, currency)` is a supported public
+method for every currency. It returns the detected type as a `Symbol` when the
+address is valid, or `nil` when it is not.
+
+Some returned type symbols changed. Update any code that compared against the
+old values:
+
+| Currency | 0.1.x           | 0.2.0                                        |
+| -------- | --------------- | -------------------------------------------- |
+| TON      | `:TON`          | `:ton_mainnet` / `:ton_testnet`              |
+| Monero   | `:monero`       | `:standard` / `:integrated` / `:subaddress`  |
+| ETH      | `nil`           | `:eth`                                        |
+| SOL      | `nil`           | `:solana`                                     |
+| XLM      | `nil`           | `:account` / `:muxed`                         |
+
+```ruby
+# 0.1.x
+AdequateCryptoAddress::Ton.new(addr).send(:address_type) # private, => :TON
+
+# 0.2.0
+AdequateCryptoAddress.address_type(addr, :TON)           # public, => :ton_mainnet
+```
+
+Type symbols passed to `.valid?` for these currencies changed accordingly, e.g.
+`valid?(addr, :TON, :ton_mainnet)`.
+
+### New network accessors
+
+SegWit Bitcoin types are network-agnostic; call `.network` to enforce a network:
+
+```ruby
+AdequateCryptoAddress.address('bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq', :btc).network #=> :mainnet
+AdequateCryptoAddress.address('tb1qw508d6qejxtdg4y5r3zarvary0c5xw7kxpjzsx', :btc).network #=> :testnet
+```
+
+`Xmr#network` reports `:mainnet` / `:testnet` / `:stagenet`.
+
+### Internal rename (only if you subclassed `Bch`)
+
+The BCH internal helper `address_type(address_code, address_type)` was renamed
+to `type_mapping(address_code, address_type)`. The public `address_type` (no
+arguments) now returns the detected type.
+
 ## Main API
 
-##### .valid? (address, currency [, type = :prod])
+##### .valid? (address, currency [, type = nil])
 
 ###### Parameters
 * address - Wallet address to validate.
 * currency - Currency name string or symbol in any case, `:bitcoin` or `'BTC'` or `:btc` or `'BitCoin'`
 * type - Optional. You can enforce validation with specific type. Not all currencies support types.
 
-> Returns true if the address (string) is a valid wallet address for the crypto currency specified, see below for supported currencies.
+> Returns true if the address (string) is a valid wallet address for the crypto currency specified, see below for supported currencies. An unknown currency raises `AdequateCryptoAddress::UnknownCurrency`; a `nil` or malformed address returns `false`.
+
+##### .address_type (address, currency)
+
+> Returns the detected address type as a `Symbol` when the address is valid for the currency, or `nil` when it is not. The type vocabulary per currency is listed below.
+
+```ruby
+AdequateCryptoAddress.address_type('bc1qar0srrr7xfkvy5l643lydnw9re59gtzzwf5mdq', :btc) #=> :segwit_v0_keyhash
+AdequateCryptoAddress.address_type('not a real address', :btc)                       #=> nil
+```
 
 ### Supported crypto currencies
 
-* Bitcoin/BTC, `'bitcoin'` or `'BTC'` types: `:segwit_v0_keyhash :segwit_v0_scripthash :taproot :hash160 :p2sh :hash160test :p2shtest`
+* Bitcoin/BTC, `'bitcoin'` or `'BTC'` types: `:segwit_v0_keyhash :segwit_v0_scripthash :taproot :hash160 :p2sh :hash160test :p2shtest`. SegWit types are network-agnostic; call `AdequateCryptoAddress.address(addr, :btc).network` to get `:mainnet`/`:testnet`.
 * BitcoinCash/BCH, `'bitcoincash'` or `'BCH'` types: `:p2sh :p2pkh :p2pkhtest :p2shtest`
 * Cardano/ADA, `'cardano'` or `'ADA'` types: `:prod :test`
 * Dash, `'dash'` or `'DASH'` types: `:prod :test`
 * Dogecoin/DOGE, `'dogecoin'` or `'DOGE'` types: `:prod :test`
 * Zcash/ZEC, `'zcash'` or `'ZEC'` types: `:prod :test`
-* Ethereum/ETH, `'ethereum'` or `'ETH'`
+* Ethereum/ETH, `'ethereum'` or `'ETH'` type: `:eth`
 * Litecoin/LTC, `'litecoin'` or `'LTC'` types: `:prod :test`
-* Ripple/XRP, `'ripple'` or `'XRP'`
-* Solana/SOL, `'solana'` or `'SOL'`
-* Stellar/XLM, `'stellar'` or `'XLM'`
-* Toncoin, `'TON'`
-* Monero/XRM, `'monero'`
+* Ripple/XRP, `'ripple'` or `'XRP'` type: `:common`
+* Solana/SOL, `'solana'` or `'SOL'` type: `:solana`
+* Stellar/XLM, `'stellar'` or `'XLM'` types: `:account :muxed`
+* Toncoin/TON, `'TON'` or `'Toncoin'` types: `:ton_mainnet :ton_testnet`
+* Monero/XMR, `'monero'` or `'XMR'` types: `:standard :integrated :subaddress` (`.network` reports `:mainnet`/`:testnet`/`:stagenet`)
+
+### Format coverage
+
+This gem validates the mainstream, checksum-bearing **payment** address for each
+supported chain. The following related formats are currently **out of scope** and
+are rejected (they return `false`) rather than silently accepted. They may be
+added in future releases:
+
+* Bitcoin witness versions 2–16 and newer output forms (e.g. P2MR / BIP-360);
+  only v0 (Bech32) and v1 Taproot (Bech32m) are recognized.
+* Litecoin MWEB (`ltcmweb1...`) addresses and future witness versions.
+* Zcash Sapling, Unified, Orchard, and TEX addresses; only transparent
+  `t`-addresses are validated.
+* XRP X-addresses (with embedded destination tags); only classic `r...`
+  addresses are validated.
+* Dash Platform Bech32m addresses; only Core Base58Check addresses are validated.
+* Cardano Byron and stake/reward addresses; only Shelley payment address
+  types 0–7 are validated. Stake addresses are intentionally excluded from a
+  payment-address validator.
+* Stellar contract (`C...`) and other SEP-23 StrKey types; only `G` (account)
+  and `M` (muxed) addresses are validated.
+* TON raw `workchain:account_id` addresses; only the Base64URL user-friendly
+  form is validated.
 
 ## Usage
 

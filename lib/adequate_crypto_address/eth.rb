@@ -23,7 +23,10 @@ module AdequateCryptoAddress
       end
     end
 
-    def address_type; end
+    # :eth when the address is a valid (optionally checksummed) address, else nil.
+    def address_type
+      valid? ? :eth : nil
+    end
 
     private
 

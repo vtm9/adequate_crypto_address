@@ -3,6 +3,7 @@
 require 'adequate_crypto_address/utils/bech32'
 require 'adequate_crypto_address/utils/bch'
 require 'adequate_crypto_address/utils/xlm'
+require 'adequate_crypto_address/utils/monero_base58'
 
 require 'adequate_crypto_address/altcoin'
 require 'adequate_crypto_address/bch'
@@ -28,12 +29,29 @@ module AdequateCryptoAddress
   end
 
   def address(address, currency)
-    AdequateCryptoAddress.const_get(currency.capitalize).new(address)
-  rescue NameError
-    raise UnknownCurrency, "Wrong currency #{currency}"
+    klass = currency_class(currency)
+    raise UnknownCurrency, "Wrong currency #{currency}" unless klass
+
+    klass.new(address)
   end
 
+  # Public contract: returns the detected address type as a Symbol when the
+  # address is valid for the currency, or nil when it is not.
   def address_type(address, currency)
-    AdequateCryptoAddress.const_get(currency.capitalize).new(address).address_type
+    address(address, currency).address_type
+  end
+
+  # Resolve a currency name (string or symbol, any case) to its validator class.
+  # Only classes defined directly on this module that implement the validator
+  # interface are eligible, so malformed input can never be mistaken for a
+  # currency and NoMethodError is never swallowed as UnknownCurrency.
+  def currency_class(currency)
+    const_name = currency.to_s.capitalize
+    return nil unless const_defined?(const_name, false)
+
+    klass = const_get(const_name)
+    return nil unless klass.is_a?(Class) && klass.method_defined?(:valid?)
+
+    klass
   end
 end

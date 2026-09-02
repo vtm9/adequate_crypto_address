@@ -9,39 +9,32 @@ module AdequateCryptoAddress
 
     ACCOUNT_SIZE = 35
     MUXED_SIZE = 43
+    MAX_LENGTH = 90 # G-addresses are 56 chars, M-addresses 69
 
     def initialize(address)
       @address = address
     end
 
     def valid?(_type = nil)
-      valid_address?
+      !address_type.nil?
     end
 
-    def address_type; end
-
-    private
-
-    def valid_address?
+    # :account (G...) or :muxed (M...) when valid, otherwise nil.
+    def address_type
       decoded = decode_strkey
+      return nil unless decoded
 
-      return false unless decoded
-
-      version = decoded.getbyte(0)
-
-      case version
+      case decoded.getbyte(0)
       when ACCOUNT_VERSION_BYTE
-        valid_strkey?(decoded, ACCOUNT_SIZE)
-
+        :account if valid_strkey?(decoded, ACCOUNT_SIZE)
       when MUXED_VERSION_BYTE
-        valid_strkey?(decoded, MUXED_SIZE)
-
-      else
-        false
+        :muxed if valid_strkey?(decoded, MUXED_SIZE)
       end
     rescue StandardError
-      false
+      nil
     end
+
+    private
 
     def valid_strkey?(decoded, expected_size)
       return false unless decoded.bytesize == expected_size
@@ -53,6 +46,8 @@ module AdequateCryptoAddress
     end
 
     def decode_strkey
+      return nil if address.to_s.length > MAX_LENGTH
+
       Utils::Xlm.decode(address)
     end
 

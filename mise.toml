@@ -20,12 +20,17 @@ run = "bundle exec ruby -rrubocop -e 'exit RuboCop::CLI.new.run(ARGV)' -- --cach
 description = "Build the gem"
 run = "bundle exec rake build"
 
+[tasks.audit]
+description = "Check dependencies against the ruby advisory database"
+run = "bundle exec bundler-audit check --update"
+
 [tasks.check]
 description = "Run the complete local quality gate"
 run = [
   { task = "test" },
   { task = "lint" },
   { task = "build" },
+  { task = "audit" },
 ]
 
 [tasks.console]

@@ -26,6 +26,11 @@ module AdequateCryptoAddress
       ]
     }.freeze
     DEFAULT_PREFIX = :bitcoincash
+    CASH_PREFIXES = %w[bitcoincash bchtest bchreg].freeze
+    # CashAddr size bits (version byte bits 2..0) mapped to the hash length in bytes.
+    CASH_HASH_SIZES = { 0 => 20, 1 => 24, 2 => 28, 3 => 32, 4 => 40, 5 => 48, 6 => 56, 7 => 64 }.freeze
+    LEGACY_LENGTH = 25 # 1 version byte + 20 hash bytes + 4 checksum bytes
+    MAX_LENGTH = 120
 
     attr_reader :raw_address, :type, :payload, :prefix, :digest
 
@@ -42,23 +47,20 @@ module AdequateCryptoAddress
       end
     end
 
-    def address_type(address_code, address_type)
-      TYPE_MAP[address_code].each do |mapping|
-        return mapping if mapping.include?(address_type)
-      end
-
-      raise(AdequateCryptoAddress::InvalidAddress, 'Could not determine address type')
+    # Public contract: the detected legacy/cash type Symbol, or nil when invalid.
+    def address_type
+      type
     end
 
     def legacy_address
-      type_int = address_type(:legacy, type)[1]
+      type_int = type_mapping(:legacy, type)[1]
       input = code_list_to_string([type_int] + payload + Array(digest))
       input += Digest::SHA256.digest(Digest::SHA256.digest(input))[0..3] unless digest
       Base58.binary_to_base58(input, :bitcoin)
     end
 
     def cash_address
-      type_int = address_type(:cash, type)[1]
+      type_int = type_mapping(:cash, type)[1]
       p = [type_int] + payload
       p = convertbits(p, 8, 5)
       checksum = calculate_cash_checksum(p)
@@ -69,7 +71,18 @@ module AdequateCryptoAddress
 
     private
 
+    def type_mapping(address_code, address_type)
+      TYPE_MAP[address_code].each do |mapping|
+        return mapping if mapping.include?(address_type)
+      end
+
+      raise(AdequateCryptoAddress::InvalidAddress, 'Could not determine address type')
+    end
+
     def normalize
+      return unless raw_address.is_a?(String)
+      return if raw_address.length > MAX_LENGTH
+
       begin
         from_cash_string
       rescue InvalidCashAddress
@@ -83,27 +96,51 @@ module AdequateCryptoAddress
       validate_cash_address_case!
 
       @raw_address = raw_address.downcase
-      @raw_address = "#{DEFAULT_PREFIX}:#{raw_address}" if !raw_address.include?(':')
+      @raw_address = "#{DEFAULT_PREFIX}:#{raw_address}" unless raw_address.include?(':')
 
       @prefix, base32string = raw_address.split(':')
-      converted = decode_cash_payload(base32string)
-      assign_cash_payload(converted)
+      raise(InvalidCashAddress, 'Unsupported cash address prefix') unless CASH_PREFIXES.include?(prefix)
+
+      assign_cash_payload(decode_cash_payload(base32string))
     end
 
-    def assign_cash_payload(converted)
-      @type = address_type(:cash, converted[0].to_i)[0]
-      @payload = converted[1..-7]
+    def assign_cash_payload(payload_bytes)
+      version = payload_bytes.first
+      raise(InvalidCashAddress, 'Invalid cash address version byte') unless valid_cash_version?(version, payload_bytes)
+
+      @payload = payload_bytes[1..]
+      @type = cash_type(version)
       @type = testnet_type(type) if prefix == 'bchtest'
+    end
+
+    # Version byte layout: bit 7 reserved (must be 0), bits 6..3 type, bits 2..0 size.
+    def valid_cash_version?(version, payload_bytes)
+      return false unless version&.nobits?(0x80)
+      return false unless cash_type(version)
+
+      expected = CASH_HASH_SIZES[version & 0x07]
+      (payload_bytes.length - 1) == expected
+    end
+
+    def cash_type(version)
+      { 0 => :p2pkh, 1 => :p2sh }[(version >> 3) & 0x0f]
     end
 
     def from_legacy_string
       decoded = decode_legacy_address
+      raise(InvalidLegacyAddress, 'Invalid legacy address length') unless decoded.length == LEGACY_LENGTH
+      raise(InvalidLegacyAddress, 'Bad legacy address checksum') unless valid_legacy_checksum?(decoded)
 
-      @type = address_type(:legacy, decoded[0].to_i)[0]
+      @type = type_mapping(:legacy, decoded[0].to_i)[0]
       @payload = decoded[1..-5]
       @digest = decoded[-4..]
       @prefix = DEFAULT_PREFIX
       @prefix = 'bchtest' if [:p2shtest, :p2pkhtest].include?(type)
+    end
+
+    def valid_legacy_checksum?(decoded)
+      body = code_list_to_string(decoded[0...-4])
+      Digest::SHA256.digest(Digest::SHA256.digest(body))[0, 4] == code_list_to_string(decoded[-4..])
     end
 
     def validate_cash_address_case!
@@ -114,9 +151,14 @@ module AdequateCryptoAddress
 
     def decode_cash_payload(base32string)
       decoded = b32decode(base32string)
+      raise(InvalidCashAddress, 'Invalid cash address encoding') if decoded.empty? || decoded.include?(nil)
       raise(InvalidCashAddress, 'Bad cash address checksum') unless verify_cash_checksum(decoded)
 
-      convertbits(decoded, 5, 8)
+      # Drop the eight 5-bit checksum symbols, then map the payload back to bytes.
+      payload = convertbits(decoded[0...-8], 5, 8, pad: false)
+      raise(InvalidCashAddress, 'Invalid cash address payload') unless payload
+
+      payload
     end
 
     def decode_legacy_address

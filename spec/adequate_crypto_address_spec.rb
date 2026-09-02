@@ -125,6 +125,16 @@ RSpec.describe(AdequateCryptoAddress, :aggregate_failures) do
                                                 :p2sh)
         expect(described_class).not_to be_valid('bchtest:pp8f7ww2g6y07ypp9r4yendrgyznysc9kqxh6acwu3', :BCH, :p2sh)
       end
+
+      it 'rejects hardened attack vectors' do
+        # CashAddr with a valid checksum but a disallowed prefix.
+        expect(described_class).not_to be_valid('evil:qqqsyqcyq5rqwzqfpg9scrgwpugpzysnzsqsced5n7', :bch)
+        # CashAddr whose version claims a 20-byte hash but carries a shorter payload.
+        expect(described_class).not_to be_valid('bitcoincash:qqqsyqcyq5rqwzqfpgkdg623ng', :bch)
+        # Legacy Base58Check address with a single mutated checksum character.
+        expect(described_class).to be_valid('3CWFddi6m4ndiGyKqzYvsFYagqDLPVMTzC', :bch)
+        expect(described_class).not_to be_valid('3CWFddi6m4ndiGyKqzYvsFYagqDLPVMTzD', :bch)
+      end
     end
 
     describe 'Ethereum' do
@@ -352,63 +362,63 @@ RSpec.describe(AdequateCryptoAddress, :aggregate_failures) do
     end
 
     describe 'Toncoin' do
+      let(:valid_ton) { 'UQCScs4HjjwnlIFKIq_juiuLLLnjJKTjQyfcADjYNvdYwn-l' }
+
       it 'validates addresses' do
-        expect(described_class).to be_valid('UQCScs4HjjwnlIFKIq_juiuLLLnjJKTjQyfcADjYNvdYwn-l', :TON)
+        expect(described_class).to be_valid(valid_ton, :TON)
+        expect(described_class).to be_valid(valid_ton, 'Toncoin')
+      end
+
+      it 'reports the network as the address type' do
+        expect(described_class.address_type(valid_ton, :TON)).to eq(:ton_mainnet)
       end
 
       it 'validates wrong addresses' do
         expect(described_class).not_to be_valid('wrongFKIq_juiuLLLnjJKTjQyfcAD', :TON)
+        # Correct length and alphabet but no valid tag/workchain/CRC16.
+        expect(described_class).not_to be_valid('A' * 48, :TON)
+        # Single-character checksum mutation of a real address.
+        expect(described_class).not_to be_valid("#{valid_ton[0..-2]}m", :TON)
       end
     end
 
     describe 'Monero' do
-      it 'validates addresses' do
-        expect(described_class).to be_valid(
-          '4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57',
-          :XMR
-        )
-        expect(described_class).to be_valid(
-          '4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57',
-          :monero
-        )
-        expect(described_class).to be_valid(
-          '4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57',
-          :Xmr
-        )
-        expect(described_class).to be_valid(
-          '4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57',
-          :xmr
-        )
-        expect(described_class).to be_valid(
-          '4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi',
-          :monero
-        )
-        expect(described_class).to be_valid(
-          '4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi',
-          :Xmr
-        )
-        expect(described_class).to be_valid(
-          '4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi',
-          :Xmr
-        )
-        expect(described_class).to be_valid(
-          '4TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi',
-          :xmr
-        )
-        expect(described_class).to be_valid(
-          '8BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQjpXCZedGfVQVmzCh57', :xmr
-        )
-        expect(described_class).to be_valid(
-          '8TZ76dT4mbsizsTtJzy7kYBo9f8xduc8wTsWb86pCmx5Cmh43CDxNS1FRcMrE3CNQ2ZT17vzCudc5TbNYBzizwqZFah5K1Js7VpL88qPSi',
-          :monero
-        )
+      # Standard mainnet address is the published getmonero.org donation address.
+      # The integrated and subaddress vectors are structurally valid (Keccak
+      # checksum recomputed) and derived from the same public keys.
+      let(:standard) do
+        '44AFFq5kSiGBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGQBEP3A'
+      end
+      let(:integrated) do
+        '4DrvGduF3ynBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVPp3LfyiRVuc4Ekf4eH'
+      end
+      let(:subaddress) do
+        '84zPbCjb38gBoZ4NMDwYtN18obc8AemS33DBLWs3H7otXft3XjrpDtQGv7SqSsaBYBb98uNbr2VBBEt7f2wfn3RVGMwZRBo'
+      end
+
+      it 'validates addresses across currency aliases' do
+        [:XMR, :monero, :Xmr, :xmr].each do |currency|
+          expect(described_class).to be_valid(standard, currency)
+        end
+      end
+
+      it 'validates integrated and subaddress forms' do
+        expect(described_class).to be_valid(integrated, :monero)
+        expect(described_class).to be_valid(subaddress, :monero)
+      end
+
+      it 'exposes the decoded address type' do
+        expect(described_class.address_type(standard, :xmr)).to eq(:standard)
+        expect(described_class.address_type(integrated, :xmr)).to eq(:integrated)
+        expect(described_class.address_type(subaddress, :xmr)).to eq(:subaddress)
       end
 
       it 'validates wrong addresses' do
         expect(described_class).not_to be_valid('NOT_VALID_4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjp', :monero)
-        expect(described_class).not_to be_valid('NOT_VALID_4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjp', :Xmr)
-        expect(described_class).not_to be_valid('NOT_VALID_4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjp', :XMR)
-        expect(described_class).not_to be_valid('NOT_VALID_4BKnGLZNZ5pjpXCZedGfVQjpXCZedGfVQjp', :xmr)
+        # Non-Base58 characters (regex validator previously accepted this).
+        expect(described_class).not_to be_valid("4#{'!' * 94}", :xmr)
+        # Single-character checksum mutation of a real address.
+        expect(described_class).not_to be_valid("#{standard[0..-2]}Z", :xmr)
       end
     end
   end

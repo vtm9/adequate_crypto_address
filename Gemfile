@@ -4,6 +4,7 @@ source 'https://rubygems.org'
 
 git_source(:github) { |repo_name| "https://github.com/#{repo_name}" }
 
+gem 'bundler-audit', '~> 0.9.2', require: false
 gem 'coveralls', '~> 0.8.23', require: false
 gem 'pry', '~> 0.16.0', require: false
 gem 'rake', '~> 13.4.2'
